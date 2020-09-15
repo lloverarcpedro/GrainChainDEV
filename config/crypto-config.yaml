@@ -1,0 +1,36 @@
+# Defines four organizations
+#  - Orderer organization
+#  - Grainchain
+#  - Budget
+#  - Expo
+##### Orderer for grainchain
+OrdererOrgs:
+  - Name: Orderer
+    Domain: grainchain.com
+    EnableNodeOUs: true
+    Specs:
+      - Hostname: orderer
+      # Added 4 additional orderer instances
+      - Hostname: orderer2
+      - Hostname: orderer3
+      - Hostname: orderer4
+      - Hostname: orderer5
+      
+#### Peers for grainchain
+PeerOrgs:
+  # Peer configuration for ACME
+  - Name: Grainchain
+    Domain: grainchain.com
+    EnableNodeOUs: true
+    Specs:
+      - Hostname: peer1.grainchain.com
+        CommonName: peer1.grainchain.com
+      - Hostname: peer2.grainchain.com
+        CommonName: peer2.grainchain.com
+      - Hostname: peer3.grainchain.com
+        CommonName: peer3.grainchain.com
+    Users:
+      Count: 3
+
+
+      

@@ -1,0 +1,36 @@
+# Compose file for launching the orderer service dev setup with
+# just 1 orderer in solo conf :-(
+
+version: '2'
+
+networks:
+  grainchainnet:
+
+# Storage for containers
+volumes:
+    data-orderer.grainchain.io:
+
+services:
+
+  # Orderer service
+  orderer1.grainchain.io:
+    container_name: orderer1.grainchain.io
+    image: hyperledger/fabric-orderer:2.1.1
+    command: orderer
+    # Override environment variables for orderer in this section
+    environment:
+      - FABRIC_CFG_PATH=/var/hyperledger/config
+      - FABRIC_LOGGING_SPEC=DEBUG
+    # Host folder mappings
+    volumes:
+    # Folder with genesis block
+    - /vagrant/orderer/config:/var/hyperledger/config
+    # Map the folder with MSP for orderer
+    - /vagrant/ca/client/config/crypto-config/ordererOrganizations/orderer.io/orderers/orderer1.orderer.io/msp:/var/hyperledger/msp
+    # Added to support the TLS setup
+    #- ${PWD}/config/crypto-config/ordererOrganizations/acme.com/orderers/orderer.acme.com/tls:/var/hyperledger/tls
+    - data-orderer.grainchain.io:/var/ledger
+    ports:
+      - 7050:7050
+    networks:
+      - grainchainnet 
