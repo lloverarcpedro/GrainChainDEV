@@ -1,7 +1,7 @@
 "use strict";
 const { Contract } = require("fabric-contract-api");
 
-class truckcontract extends Contract {
+class truckContract extends Contract {
   async addTruck(ctx, truckId, make, model, year, color) {
     let truck = {
       make: make,
@@ -25,4 +25,4 @@ class truckcontract extends Contract {
   }
 }
 
-module.exports = truckcontract;
+module.exports.truckContract = truckContract;

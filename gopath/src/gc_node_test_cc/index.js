@@ -1,7 +1,9 @@
-'use strict';
+"use strict";
 
-// const testContract = require('./contract/logic');
+const truckContract = require('./contract/truck-contract').truckContract;
+const grainContract = require('./contract/grain-contract').grainContract;
 
-const truckContract = require('./contract/truckslogic')
+module.exports.grainContract = grainContract;
+module.exports.truckContract = truckContract;
 
-module.exports.contracts = [ truckContract ];
+module.exports.contracts = [truckContract, grainContract];
