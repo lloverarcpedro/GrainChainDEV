@@ -76,19 +76,23 @@ case $OPERATION in
               cc_instantiate
         ;;
     "query")
+            # echo "cc_channel_id $CC_CHANNEL_ID"
+            # echo "cc_name $CC_NAME"
+            # echo -n "query jose="
+            # peer chaincode query -C $CC_CHANNEL_ID -n $CC_NAME  -c '{"Args":["query","jose"]}'
+            # echo -n "query pedro="
+            # peer chaincode query -C $CC_CHANNEL_ID -n $CC_NAME  -c '{"Args":["query","pedro"]}'
+            # # echo -n "query a="
+            # # peer chaincode query -C $CC_CHANNEL_ID -n $CC_NAME  -c '{"Args":["query","a"]}'
             echo "cc_channel_id $CC_CHANNEL_ID"
             echo "cc_name $CC_NAME"
-            echo -n "query jose="
-            peer chaincode query -C $CC_CHANNEL_ID -n $CC_NAME  -c '{"Args":["query","jose"]}'
-            echo -n "query pedro="
-            peer chaincode query -C $CC_CHANNEL_ID -n $CC_NAME  -c '{"Args":["query","pedro"]}'
-            echo -n "query a="
-            peer chaincode query -C $CC_CHANNEL_ID -n $CC_NAME  -c '{"Args":["query","a"]}'
+            echo -n "query truck 001"
+            peer chaincode query -C $CC_CHANNEL_ID -n $CC_NAME  -c '{"Args":["getTruck","001"]}'
         ;;
     
     "invoke")
-            echo "Invoke sending 5 token from a=>b"
-            peer chaincode invoke -C $CC_CHANNEL_ID -n $CC_NAME  -c '{"Args":["invoke","jose","pedro","5"]}'
+            echo "Invoke creating truck 001"
+            peer chaincode invoke -C $CC_CHANNEL_ID -n $CC_NAME  -c '{"Args":["addTruck","001","DINA","MODELA43","2021","RED"]}'
         ;;
 
     *) usage

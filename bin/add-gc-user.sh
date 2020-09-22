@@ -1,10 +1,10 @@
 
 ###--- ADD new ca user script ---### 
-## Last Check Sep 10 2020 ##
+## Last update Sep 18 2020 ##
 # Author: Pedro Llovera #
 
 #Imports 
-. ./utils/loging.sh
+. /vagrant/bin/utils/loging.sh
 
 # set -o errexit
 # set -o nounset
@@ -15,42 +15,60 @@
 function usage {
 
     __msg_help "Adds new users to certification Authority. "
-    __msg_help "Usage:   ./add-gc-user.sh   <newUserId>       <newUserRole>   <newUserPassword>   <newUserOrg>   <orgAdminId>"
+    __msg_help "Usage:   ./add-gc-user.sh   <newUserId>      <newUserRole>   <newUserPassword>   <newUserOrg>   <tlsEnabled>"
     __msg_help ""
-    __msg_help "Example: ./add-gc-user.sh   pedro.llovera   client        pass               orderers    orderer-admin"
+    __msg_help "Example: ./add-gc-user.sh   pedro.llovera    client          pass                orderer       tls"
     __msg_help ""
     __msg_help "Values for newUserRole : user for end user"
     __msg_help "                   client for fabric component"
     __msg_help ""
     __msg_help "Values for newUserOrg : commodity or harvx or orderer"
-
-    __msg_help "orgAdminId [optional]: need when adding no admin users"
+    __msg_help ""
+    __msg_help "tlsEnable [optional]: need when tls is enabled"
 }
 # Function Enroll admin
 function enrollUser {
     cd $HOME_DIR
 
-    __msg_info "Enrolling: $USER_ID"
+    __msg_header "Enrolling: $USER_ID"
 
     if [ $USER_ORG == "orderer" ]
     then 
-        export FABRIC_CA_CLIENT_HOME=$PWD/crypto/crypto-config/ordererOrganizations/grainchain.io/$USER_PARENT_DIR/$USER_ID
+        export FABRIC_CA_CLIENT_HOME=/vagrant/config/crypto-config/ordererOrganizations/orderer.io/$USER_PARENT_DIR/$USER_ID
     else
-        export FABRIC_CA_CLIENT_HOME=$PWD/crypto/crypto-config/peerOrganizations/$USER_ORG.io/$USER_PARENT_DIR/$USER_ID
+        export FABRIC_CA_CLIENT_HOME=/vagrant/config/crypto-config/peerOrganizations/$USER_ORG.io/$USER_PARENT_DIR/$USER_ID
     fi
 	__msg_info "FABRIC_CA_CLIENT_HOME=$FABRIC_CA_CLIENT_HOME"
 	mkdir -p $FABRIC_CA_CLIENT_HOME
-    #falta cd al home?.
-    cd $FABRIC_CA_CLIENT_HOME
-    fabric-ca-client enroll -u http://$USER_ID:$USER_PASS@localhost:7054
 
+
+    cd $FABRIC_CA_CLIENT_HOME
+
+    if [ $TLS_ENABLED == "true" ]
+    then
+        fabric-ca-client enroll -u https://$USER_ID:$USER_PASS@localhost:7054 --tls.certfiles /vagrant/ca/server/config/ca-cert.pem
+    else
+        fabric-ca-client enroll -u http://$USER_ID:$USER_PASS@localhost:7054
+    fi
+
+    if [ $USER_ROLE == "admin" ]
+    then
+    #copy ca admin cert to org admin folder
+        mkdir -p $FABRIC_CA_CLIENT_HOME/msp/admincerts
+        cp $CA_ADMIN_HOME/msp/signcerts/* $FABRIC_CA_CLIENT_HOME/msp/admincerts/
+        LIST=$(ls $FABRIC_CA_CLIENT_HOME/msp/admincerts/)
+        __msg_debug "Copied admin certs to $FABRIC_CA_CLIENT_HOME/msp/admincerts/"
+        __msg_debug "$LIST"
+        #DELETE CA ADMIN FOLDER 
+        rm -rf $CA_ADMIN_HOME
+    fi
     #5 Setup new user MSP
     setupMSP
 }
 
 #Function Setup MSP
 function setupMSP {
-
+    __msg_header "Setup MSP: $USER_ID"
     cd $FABRIC_CA_CLIENT_HOME/../..
     export ORG_HOME=$PWD
     __msg_info " ORG HOME ====> $ORG_HOME"
@@ -63,16 +81,37 @@ function setupMSP {
         mkdir -p $ORG_HOME/msp/tlscacerts
         mkdir -p $ORG_HOME/ca
         mkdir -p $ORG_HOME/tlsca
-        cp $ORG_HOME/users/Admin@$USER_ORG.io/msp/signcerts/*  $ORG_HOME/msp/admincerts
+        cp $ORG_HOME/users/Admin@$USER_ORG.io/msp/signcerts/*  $ORG_HOME/msp/admincerts/
+        cp /vagrant/ca/server/config/ca-cert.pem $ORG_HOME/msp/cacerts/
+        cp /vagrant/ca/server/config/ca-cert.pem $ORG_HOME/ca/
+
+        if [ $TLS_ENABLED == "true" ]
+        then
+            __msg_info "CA TLS CP ====> $FABRIC_CA_CLIENT_HOME/msp/tlscacerts"
+            cp /vagrant/ca/server/config/tls-cert.pem $ORG_HOME/msp/tlscacerts/
+            mkdir -p $FABRIC_CA_CLIENT_HOME/msp/tlscacerts
+            cp /vagrant/ca/server/config/tls-cert.pem $FABRIC_CA_CLIENT_HOME/msp/tlscacerts/
+        fi
+
     else
-        cp $ORG_HOME/users/Admin@$USER_ORG.io/msp/signcerts/*  $FABRIC_CA_CLIENT_HOME/msp/admincerts
+        mkdir -p $FABRIC_CA_CLIENT_HOME/msp/admincerts
+        cp $ORG_HOME/users/Admin@$USER_ORG.io/msp/signcerts/*  $FABRIC_CA_CLIENT_HOME/msp/admincerts/
+        __msg_debug "Admincerts copied ====> $FABRIC_CA_CLIENT_HOME/msp/admincerts/"
+        LIST=$(ls $FABRIC_CA_CLIENT_HOME/msp/admincerts/)
+        __msg_debug "$LIST"
+        if [ $TLS_ENABLED == "true" ]
+        then
+            __msg_info "CA TLS CP ====> $FABRIC_CA_CLIENT_HOME/msp/tlscacerts"
+            mkdir -p $FABRIC_CA_CLIENT_HOME/msp/tlscacerts
+            cp /vagrant/ca/server/config/tls-cert.pem $FABRIC_CA_CLIENT_HOME/msp/tlscacerts/
+        fi
     fi
 
     exit 0
 }
 
 function registerUser {
-
+__msg_header "Registering: $USER_ID"
 
 if [ $USER_ROLE == "admin" ];
     then 
@@ -94,40 +133,57 @@ if [ $USER_ROLE == "admin" ];
 
     if [ $USER_ORG == "orderer" ]
     then 
-        export FABRIC_CA_CLIENT_HOME=$PWD/crypto/crypto-config/ordererOrganizations/grainchain.io/$USER_PARENT_DIR/$USER_ID
+        export FABRIC_CA_CLIENT_HOME=/vagrant/config/crypto-config/ordererOrganizations/orderer.io/$USER_PARENT_DIR/$USER_ID
     else
-        export FABRIC_CA_CLIENT_HOME=$PWD/crypto/crypto-config/peerOrganizations/$USER_ORG.io/$USER_PARENT_DIR/$USER_ID
+        export FABRIC_CA_CLIENT_HOME=/vagrant/config/crypto-config/peerOrganizations/$USER_ORG.io/$USER_PARENT_DIR/$USER_ID
     fi
-    __msg_error "HOME BEFORE MKDIR $FABRIC_CA_CLIENT_HOME"
     mkdir -p $FABRIC_CA_CLIENT_HOME
     cd $FABRIC_CA_CLIENT_HOME/../..
     export ORG_HOME=$PWD
 
     
-    if [ $USER_ROLE == "admin" ];
+    if [ $USER_ROLE == "admin" ]
     then
         #2. change fabric client home
-        __msg_info "Registering $USER_ID as ORG-admin on $USER_ORG org"
+        __msg_header "Registering $USER_ID as ORG-admin on $USER_ORG org"
         cd $ORG_HOME/../..
         mkdir -p caAdmin
         cd caAdmin
         export FABRIC_CA_CLIENT_HOME=$PWD
+        CA_ADMIN_HOME=$PWD
         #enroll ca admin to create org admins
-        fabric-ca-client enroll -u http://admin:gc2020bc@localhost:7054 
+        if [ $TLS_ENABLED == "true" ] 
+        then
+            fabric-ca-client enroll -u https://admin:gc2020bc@localhost:7054 --tls.certfiles /vagrant/ca/server/config/ca-cert.pem
+        else
+            fabric-ca-client enroll -u http://admin:gc2020bc@localhost:7054
+        fi
+        export FABRIC_CA_ADMIN_CLIENT_HOME=$FABRIC_CA_CLIENT_HOME
         __msg_info "CA ADMIN HOME ====> $FABRIC_CA_CLIENT_HOME"
         ATTRIBUTES='"hf.Registrar.Roles=orderer,peer,user,client","hf.AffiliationMgr=true","hf.Revoker=true"'
+         
          #3. Register the new user
-        fabric-ca-client register --id.type $USER_ROLE --id.name $USER_ID --id.secret $USER_PASS --id.affiliation $USER_ORG --id.attrs $ATTRIBUTES
+        if [ $TLS_ENABLED =="true" ]  
+        then
+            fabric-ca-client register --id.type $USER_ROLE --id.name $USER_ID --id.secret $USER_PASS --id.affiliation $USER_ORG --id.attrs $ATTRIBUTES --tls.certfiles /vagrant/ca/server/config/ca-cert.pem
+            __msg_info $PWD
+        else
+            fabric-ca-client register --id.type $USER_ROLE --id.name $USER_ID --id.secret $USER_PASS --id.affiliation $USER_ORG --id.attrs $ATTRIBUTES
+        fi
 
-        cd ..
-        rm -rf caAdmin
     else
         #2. change fabric client home
         __msg_info "Registering $USER_ID as ORG $USER_ROLE on $USER_ORG org"
         cd $FABRIC_CA_CLIENT_HOME/../../users/Admin@$USER_ORG.io
         export FABRIC_CA_CLIENT_HOME=$PWD
          __msg_info "ORG ADMIN HOME ====> $FABRIC_CA_CLIENT_HOME"
-        fabric-ca-client register --id.type $USER_ROLE --id.name $USER_ID --id.secret $USER_PASS --id.affiliation $USER_ORG
+         if [ $TLS_ENABLED == "true" ] 
+        then
+            fabric-ca-client register --id.type $USER_ROLE --id.name $USER_ID --id.secret $USER_PASS --id.affiliation $USER_ORG --tls.certfiles /vagrant/ca/server/config/ca-cert.pem
+        else
+            fabric-ca-client register --id.type $USER_ROLE --id.name $USER_ID --id.secret $USER_PASS --id.affiliation $USER_ORG
+        fi
+        
     fi
 
     #4 Enrol registered user
@@ -168,6 +224,17 @@ then
     __msg_error   "Please provide newUserOrg"
     exit 1
 else 
+    if [ -z $5 ]
+    then
+        TLS_ENABLED="false"
+    else
+        if [ $5 == "true" ]
+        then
+            TLS_ENABLED="true"
+        else
+            TLS_ENABLED="false"
+        fi
+    fi
     USER_ID=$1
     USER_ROLE=$2
     USER_PASS=$3

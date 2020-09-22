@@ -30,7 +30,12 @@ else
 fi
 
 #2. Set the destination as ORG folder
-export FABRIC_CA_CLIENT_HOME=/vagrant/ca/client/config/crypto-config/peerOrganizations/$ORG_NAME/$ORG_ADMIN_ID
+if [ ORG_NAME == "orderer.grainchain.io"]
+then
+    export FABRIC_CA_CLIENT_HOME=/vagrant/ca/client/config/crypto-config/ordererOrganizations/$ORG_NAME/$ORG_ADMIN_ID
+else
+    export FABRIC_CA_CLIENT_HOME=/vagrant/ca/client/config/crypto-config/peerOrganizations/$ORG_NAME/$ORG_ADMIN_ID
+fi
 __msg_info "FABRIC_CA_CLIENT_HOME=$FABRIC_CA_CLIENT_HOME"
 
 #3. Path to the CA certificate
@@ -41,8 +46,9 @@ DESTINATION_CLIENT_HOME="$FABRIC_CA_CLIENT_HOME/.."
 
 #5. Create the MSP subfolders
 mkdir -p $DESTINATION_CLIENT_HOME/msp/admincerts 
-mkdir -p $DESTINATION_CLIENT_HOME/msp/cacerts 
+mkdir -p $DESTINATION_CLIENT_HOME/msp/cacerts  
 mkdir -p $DESTINATION_CLIENT_HOME/msp/keystore
+mkdir -p $DESTINATION_CLIENT_HOME/msp/signcerts
 
 #6. Copy the Root CA Cert
 cp $ROOT_CA_CERTIFICATE $DESTINATION_CLIENT_HOME/msp/cacerts
@@ -52,4 +58,4 @@ cp $FABRIC_CA_CLIENT_HOME/msp/signcerts/* $DESTINATION_CLIENT_HOME/msp/admincert
 
 __msg_info "Created MSP Under: $DESTINATION_CLIENT_HOME"
 
-exit0
+exit 0

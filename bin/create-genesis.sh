@@ -26,16 +26,18 @@ else
         exit 0
     else
 
-        CHANNEL_ID=$1
         #2. Set Constants
+        CHANNEL_ID=$1
         export GC_CHANNEL_ID=$CHANNEL_PROFILE
-        OUTPUT_BLOCK="../config/$CHANNEL_ID-genesis.block"
+        OUTPUT_BLOCK="/vagrant/config/$CHANNEL_ID-genesis.block"
         BLOCK_PROFILE="GrainchainOrdererGenesis"
-        OUTPUT_CHANNEL_TX="../config/$CHANNEL_ID-channel.tx" 
+        OUTPUT_CHANNEL_TX="/vagrant/config/$CHANNEL_ID-channel.tx" 
         CHANNEL_PROFILE="GrainchainChannel"
-        CONFIG_PATH="../config"
+        CONFIG_PATH="/vagrant/config"
     fi
 fi
+
+
 
 #2.1 erase previous blocks and tx files 
 rm -rf /vagrant/peer/config/*.block

@@ -99,7 +99,7 @@ tls:
 #
 #############################################################################
 csr:
-  cn: adminorderer.io
+  cn: Admin@orderer.io
   keyrequest:
     algo: ecdsa
     size: 256
