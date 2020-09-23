@@ -11,16 +11,17 @@ class grainContract extends Contract {
     };
 
     await ctx.stub.putState(contractId, Buffer.from(JSON.stringify(contract)));
-    console.log("Truck added To the ledger Succesfully..");
+    console.log("Contract Added To The Ledger Succesfully..");
+    console.log("User Info",ctx.clientIdentity.getID().toString())
   }
 
   async getContract(ctx, contractId) {
     let contractAsBytes = await ctx.stub.getState(contractId);
     if (!contractAsBytes || contractAsBytes.toString().length <= 0) {
-      throw new Error("contract with this Id does not exist: ");
+      throw new Error("Contract with this Id does not exist: ");
     }
     let contract = JSON.parse(contractAsBytes.toString());
-
+    console.log("Contract Found Succesfully..");
     return JSON.stringify(contract);
   }
 }
