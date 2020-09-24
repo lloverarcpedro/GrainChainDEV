@@ -24,6 +24,7 @@ class grainContract extends Contract {
     console.log("Contract Found Succesfully..");
     return JSON.stringify(contract);
   }
+
 }
 
 module.exports.grainContract = grainContract;
