@@ -1,7 +1,7 @@
 # Compose file for launching the ca dev setup with
 # a PostgreSQL for fabric-ca and the tool container
 
-version: '2'
+version: '2.4'
 
 networks:
   grainchainnet:
@@ -12,23 +12,6 @@ volumes:
 
 
 services:
-  #CA Postgres DB
-  # cert-auth-db.grainchain.io:
-  #   container_name: cert-auth-db.grainchain.io
-  #   image: postgres:9.6
-  #   restart: always
-  #   environment:
-  #     - POSTGRES_USER=postgres
-  #     - POSTGRES_PASSWORD=gc2020bc
-  #     - POSTGRES_DB=fabric_ca
-  #   volumes:
-  #     # Folder for db storage
-  #     - /opt/shared_storage/ca_db_data:/var/lib/postgresql/data
-  #   ports:
-  #     - 5432:5432
-  #   networks:
-  #     - grainchainnet
-
   # CA service
   cert-auth.grainchain.io:
     container_name: cert-auth.grainchain.io
@@ -42,8 +25,9 @@ services:
     volumes:
       # Folder with ca server configuration file
       - /vagrant/ca/server/config:/var/hyperledger/config
-    # depends_on: 
-    #   - cert-auth-db.grainchain.io
+    depends_on:
+      cert-auth-db.grainchain.io:
+        condition: service_healthy
     ports: 
       - 7054:7054
     networks: 
@@ -82,6 +66,30 @@ services:
       - /vagrant/peer/config:/var/hyperledger/config
       - /vagrant/ca/client:/var/hyperledger/config/caclient
       - /vagrant/config/crypto-config/peerOrganizations/grainchain.com/peers/peer1.grainchain.com/msp:/var/hyperledger/msp
+    networks:
+      - grainchainnet
+
+  #CA Postgres DB
+  cert-auth-db.grainchain.io:
+    container_name: cert-auth-db.grainchain.io
+    image: postgres:9.6
+    restart: always
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=gc2020bc
+      - POSTGRES_DB=fabric_ca
+    healthcheck:
+      #POSTGRES HEALTH CHECK
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 10s
+      timeout: 10s
+      retries: 3
+      start_period: 5s
+    volumes:
+      # Folder for db storage
+      - /opt/shared_storage/ca_db_data_postgre:/var/lib/postgresql/data
+    ports:
+      - 5432:5432
     networks:
       - grainchainnet
 

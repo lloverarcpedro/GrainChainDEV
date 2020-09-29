@@ -45,6 +45,7 @@ class loadsContract extends Contract {
         contractId,
         Buffer.from(JSON.stringify(contractAsJson))
       );
+      await ctx.stub.setEvent("loadAdded", Buffer.from(JSON.stringify(contractAsJson)))
       return "Load Added To Contract Succesfully..";
       console.log("User Info", ctx.clientIdentity.getID().toString());
     } catch (error) {

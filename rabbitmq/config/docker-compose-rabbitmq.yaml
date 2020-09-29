@@ -1,0 +1,19 @@
+version: "2.4"
+
+networks:
+  grainchainnet:
+
+services:
+  # RAbbit MQ service
+  rabbit-mq.grainchain.io:
+    container_name: rabbit-mq.grainchain.io
+    image: rabbitmq:3-management
+    environment:
+      - RABBITMQ_DEFAULT_USER=grainchain
+      - RABBITMQ_DEFAULT_PASS=gc2020bc
+    ports:
+      - 15672:15672
+      - 5672:5672
+      - 5671:5671
+    networks:
+      - grainchainnet

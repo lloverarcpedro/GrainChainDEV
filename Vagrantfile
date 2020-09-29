@@ -39,6 +39,8 @@ Vagrant.configure("2") do |config|
 
     #PostgresDB
     config.vm.network "forwarded_port", guest: 5432, host: 5432
+    #MySQL DB
+    config.vm.network "forwarded_port", guest: 3306, host:3306
 
 
     # For Peer Container
@@ -62,6 +64,11 @@ Vagrant.configure("2") do |config|
 
     # For API
     config.vm.network "forwarded_port", guest: 4000, host: 4000
+
+    #Rabbit MQ
+    config.vm.network "forwarded_port", guest: 15672, host: 15672
+    config.vm.network "forwarded_port", guest: 5672, host: 5672
+    config.vm.network "forwarded_port", guest: 5671, host: 5671
     
 
     # This gets executed for both vm1 & vm2

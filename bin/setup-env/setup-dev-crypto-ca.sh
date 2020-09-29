@@ -61,7 +61,7 @@ if [ $GC_TLS_ENABLED == "true" ]
 then
     __msg_info "TLS IS ENABLED"
     fabric-ca-client enroll -u https://admin:$GC_USER_PASSWORD@localhost:7054 --tls.certfiles /vagrant/ca/server/config/tls-cert.pem
-    fabric-ca-client identity list --tls.certfiles /vagrant/ca/server/config/tls-cert.pem
+    fabric-ca-client identity list --tls.certfiles /vagrant/ca/server/config/tls-docke.pem
 else
     fabric-ca-client enroll -u http://admin:$GC_USER_PASSWORD@localhost:7054
     fabric-ca-client identity list

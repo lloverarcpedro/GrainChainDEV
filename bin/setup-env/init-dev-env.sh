@@ -12,6 +12,7 @@ export GC_TLS_ENABLED="false"
 ##### CLEAN DOCKER #####
 docker rm $(docker stop $(docker ps -aq))
 docker volume rm $(docker volume list -q)
+docker network prune
 docker network rm $(docker network list -q)
 #CLEAN PROJECT DIRECTORIES
 rm -rf $FABRIC_CA_CLIENT_HOME
@@ -38,12 +39,14 @@ fi
 mkdir -p /vagrant/ca/server/config
 mkdir -p /vagrant/orderer/config
 mkdir -p /vagrant/peer/config
+mkdir -p /vagrant/rabbitmq/config
 
 cp $BASE_CONFING_PATH/ca/* /vagrant/ca/server/config/
 cp $BASE_CONFING_PATH/orderer/* /vagrant/orderer/config/
 cp $BASE_CONFING_PATH/peer/* /vagrant/peer/config/
 cp $BASE_CONFING_PATH/configtx/* /vagrant/peer/config/
 cp $BASE_CONFING_PATH/configtx/* /vagrant/orderer/config/
+cp $BASE_CONFING_PATH/rabbitmq/* /vagrant/rabbitmq/config/
 
 
 #2 INIT CA SERVER 
@@ -77,9 +80,11 @@ docker-compose -f /vagrant/orderer/config/docker-compose-orderer.yaml up -d
 #6 RUN PEER CONTAINER(S)
 docker-compose -f /vagrant/peer/config/docker-compose-peer.yaml up -d
 
-#7 CREATE PEERS CHANNEL JOIN AND UPDATE ANCHOR
+#7 RUN RABBIT MQ
+docker-compose -f /vagrant/rabbitmq/config/docker-compose-rabbitmq.yaml up -d
+
+#8 CREATE PEERS CHANNEL JOIN AND UPDATE ANCHOR
 docker exec -it tools.grainchain.io sh -c "/opt/scripts/gcscripts/bin/tools/create-channel-script.sh"
 
-
-#8 DEPLOY AND TEST THE CHAINCODE
+#9 DEPLOY AND TEST THE CHAINCODE
 docker exec -it tools.grainchain.io sh -c "/opt/scripts/gcscripts/bin/tools/deploy-test-cc-script.sh"

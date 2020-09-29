@@ -156,23 +156,20 @@ crl:
 #  Database section - Supported types are: "sqlite3", "postgres", and "mysql".
 #############################################################################
 db:
-  # type: postgres
-  # datasource: host=localhost port=5432 user=postgres password=gc2020bc dbname=fabric_ca sslmode=verify-full
-  # tls:
-  #   enabled: false
-  #   certfiles:
-  #   client:
-  #     certfile:
-  #     keyfile:
+  type: postgres
+  datasource: host=cert-auth-db.grainchain.io port=5432 user=postgres password=gc2020bc dbname=fabri_ca sslmode=disable
 
+  # type: mysql
+  # datasource: root:gc2020bc@tcp(cert-auth-db.grainchain.io:3306)/fabric_ca?parseTime=true&tls=false 
+  
   # type: sqlite3
   # datasource: fabric-ca-server.db
-  # tls:
-  #     enabled: false
-  #     certfiles:
-  #     client:
-  #       certfile:
-  #       keyfile:
+  tls:
+      enabled: false
+      certfiles:
+      client:
+        certfile:
+        keyfile:
 
 #############################################################################
 #  LDAP section
