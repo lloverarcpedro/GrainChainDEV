@@ -49,7 +49,7 @@ Organizations:
       Admins:
           Type: Signature
           # Either Grainchain admin OR Orderer Admin can carry out admin activities
-          Rule: "OR('GrainchainMSP.admin')"
+          Rule: "OR('GrainchainMSP.member')"
       Endorsement:
           Type: Signature
           # Any member can act as an endorser
@@ -58,29 +58,29 @@ Organizations:
       - Host: peer1.grainchain.com
         Port: 7051
 
-  # - &Budget
-  #   Name: Budget
-  #   ID: BudgetMSP
-  #   MSPDir: ./crypto-config/peerOrganizations/budget.com/msp
-  #   Policies: &BudgetPolicies
-  #     Readers:
-  #         Type: Signature
-  #         # Any member
-  #         Rule: "OR('BudgetMSP.member')"
-  #     Writers:
-  #         Type: Signature
-  #         # Any member
-  #         Rule: "OR('BudgetMSP.member')"
-  #     Admins:
-  #         Type: Signature
-  #         # BOTH Budget Admin AND Orderer Admin needed for admin activities
-  #         Rule: "OR('BudgetMSP.member')"
-  #     Endorsement:
-  #         Type: Signature
-  #         Rule: "OR('BudgetMSP.member')"
-  #   AnchorPeers:
-  #     - Host: peer1.budget.com
-  #       Port: 7051
+  - &Commodity
+    Name: Commodity
+    ID: CommodityMSP
+    MSPDir: vagrant/ca/client/config/crypto-config/peerOrganizations/commodity.io/msp
+    Policies: &CommodityPolicies
+      Readers:
+          Type: Signature
+          # Any member
+          Rule: "OR('CommodityMSP.member')"
+      Writers:
+          Type: Signature
+          # Any member
+          Rule: "OR('CommodityMSP.member')"
+      Admins:
+          Type: Signature
+          # BOTH Commodity Admin AND Orderer Admin needed for admin activities
+          Rule: "OR('CommodityMSP.member')"
+      Endorsement:
+          Type: Signature
+          Rule: "OR('CommodityMSP.member')"
+    AnchorPeers:
+      - Host: peer1.commodity.io
+        Port: 9051
 
   
 
@@ -258,13 +258,14 @@ Profiles:
         GrainchainConsortium:
             Organizations:
                   - <<: *Grainchain
+                  - <<: *Commodity
+                  
 
       Application:
             <<: *ApplicationDefaults
-
             Organizations:
                 - <<: *Grainchain
-
+                - <<: *Commodity
                                     
                   
   GrainchainChannel:
@@ -276,8 +277,4 @@ Profiles:
         
         Organizations:
             - <<: *Grainchain
-
-        
-
-
-  
+            - <<: *Commodity

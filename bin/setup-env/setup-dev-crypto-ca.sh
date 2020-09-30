@@ -67,7 +67,7 @@ else
     fabric-ca-client identity list
 fi
 
-rm -rf $FABRIC_CA_CLIENT_HOME
+##rm -rf $FABRIC_CA_CLIENT_HOME
 mkdir -p /vagrant/ca/client/config/crypto-config
 rm -rf /vagrant/ca/client
 mkdir -p /vagrant/ca/client/config

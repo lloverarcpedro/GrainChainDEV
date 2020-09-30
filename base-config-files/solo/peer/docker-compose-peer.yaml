@@ -9,9 +9,12 @@ networks:
 # Storage for containers
 volumes:
   data-peer1.grainchain.io:
+  data-peer2.grainchain.io:
+  data-peer1.commodity.io:
+  data-peer2.commodity.io:
 
 services:
-# Harvx peer1
+# Grainchain peer1
   peer1.grainchain.io:
     container_name: peer1.grainchain.io
     image: hyperledger/fabric-peer:2.1.1
@@ -41,5 +44,99 @@ services:
     ports:
       - 7051:7051
       - 7052:7052
+    networks:
+      - grainchainnet
+
+# Harvx peer2
+  peer2.grainchain.io:
+    container_name: peer2.grainchain.io
+    image: hyperledger/fabric-peer:2.1.1
+    # Override variables in this section
+    environment:
+      - FABRIC_CFG_PATH=/var/hyperledger/config
+      - FABRIC_LOGGING_SPEC=WARNING
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=${COMPOSE_PROJECT_NAME}_grainchainnet
+    # Start the peer node
+    command: peer node start
+    # Host folder mappings
+    volumes:
+      # Folder with channel create tx file
+      - /vagrant/peer/config:/var/hyperledger/config
+      # Map the folder with MSP for Peer
+      - /vagrant/ca/client/config/crypto-config/peerOrganizations/harvx.io/peers/peer2@harvx.io/msp:/var/hyperledger/msp  
+      # Added to support the TLS setup
+      #- ${PWD}/config/crypto-config/peerOrganizations/acme.io/peers/peer1.acme.io/tls:/var/hyperledger/tls
+      - /var/run/:/var/run/
+      - data-peer2.grainchain.io:/var/hyperledger/production
+      - /vagrant/bin:/var/hyperledger/config/scripts
+      #gopath
+      - /vagrant/gopath:/opt/gopath
+    # depends_on: 
+    #   - orderer.acme.io
+    # Map the ports on Host VM to container ports
+    ports:
+      - 8051:7051
+      - 8052:7052
+    networks:
+      - grainchainnet
+
+
+# Commodity peer1
+  peer1.commodity.io:
+    container_name: peer1.commodity.io
+    image: hyperledger/fabric-peer:2.1.1
+    # Override variables in this section
+    environment:
+      - FABRIC_CFG_PATH=/var/hyperledger/config
+      - FABRIC_LOGGING_SPEC=WARNING
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=${COMPOSE_PROJECT_NAME}_grainchainnet
+    # Start the peer node
+    command: peer node start
+    # Host folder mappings
+    volumes:
+      # Folder with channel create tx file
+      - /vagrant/peer/config:/var/hyperledger/config
+      # Map the folder with MSP for Peer
+      - /vagrant/ca/client/config/crypto-config/peerOrganizations/commodity.io/peers/peer1@commodity.io/msp:/var/hyperledger/msp  
+      # Added to support the TLS setup
+      #- ${PWD}/config/crypto-config/peerOrganizations/acme.io/peers/peer1.acme.io/tls:/var/hyperledger/tls
+      - /var/run/:/var/run/
+      - data-peer1.commodity.io:/var/hyperledger/production
+      - /vagrant/bin:/var/hyperledger/config/scripts
+      #gopath
+      - /vagrant/gopath:/opt/gopath
+    ports:
+      - 9051:7051
+      - 9052:7052
+    networks:
+      - grainchainnet
+
+# Commodity peer2
+  peer2.commodity.io:
+    container_name: peer2.commodity.io
+    image: hyperledger/fabric-peer:2.1.1
+    # Override variables in this section
+    environment:
+      - FABRIC_CFG_PATH=/var/hyperledger/config
+      - FABRIC_LOGGING_SPEC=WARNING
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=${COMPOSE_PROJECT_NAME}_grainchainnet
+    # Start the peer node
+    command: peer node start
+    # Host folder mappings
+    volumes:
+      # Folder with channel create tx file
+      - /vagrant/peer/config:/var/hyperledger/config
+      # Map the folder with MSP for Peer
+      - /vagrant/ca/client/config/crypto-config/peerOrganizations/commodity.io/peers/peer2@commodity.io/msp:/var/hyperledger/msp  
+      # Added to support the TLS setup
+      #- ${PWD}/config/crypto-config/peerOrganizations/acme.io/peers/peer1.acme.io/tls:/var/hyperledger/tls
+      - /var/run/:/var/run/
+      - data-peer2.commodity.io:/var/hyperledger/production
+      - /vagrant/bin:/var/hyperledger/config/scripts
+      #gopath
+      - /vagrant/gopath:/opt/gopath
+    ports:
+      - 10051:7051
+      - 10052:7052
     networks:
       - grainchainnet
