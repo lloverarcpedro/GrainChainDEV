@@ -28,7 +28,7 @@ export ORDERER_ADDRESS=orderer1.grainchain.io:7050
 #### Test Chaincode related properties
 export CC_CONSTRUCTOR='{"Args":[]}'
 export CC_NAME="gocc1"
-export CC_PATH="/opt/gopath/src/gc_node_test_cc"
+export CC_PATH="/opt/gopath/src/gc_node_test_cc_pdc"
 export CC_VERSION="1.0"
 export CC_CHANNEL_ID="grainchainchannel"
 export CC_LANGUAGE="node"

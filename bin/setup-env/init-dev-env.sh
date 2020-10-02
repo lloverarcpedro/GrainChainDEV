@@ -7,6 +7,7 @@
 . /vagrant/bin/utils/loging.sh
 
 export GC_TLS_ENABLED="false"
+export GC_PDC_ENABLED="true"
 
 #0 CLEAR ENTIRE ENVIRONMENT
 ##### CLEAN DOCKER #####
@@ -87,4 +88,4 @@ docker-compose -f /vagrant/rabbitmq/config/docker-compose-rabbitmq.yaml up -d
 docker exec -it tools.grainchain.io sh -c "/opt/scripts/gcscripts/bin/tools/create-channel-script.sh"
 
 #9 DEPLOY AND TEST THE CHAINCODE
-docker exec -it tools.grainchain.io sh -c "/opt/scripts/gcscripts/bin/tools/deploy-test-cc-script.sh"
+docker exec -it tools.grainchain.io sh -c "/opt/scripts/gcscripts/bin/tools/deploy-test-cc-script.sh $GC_PDC_ENABLED"

@@ -163,7 +163,7 @@ if [ $USER_ROLE == "admin" ];
         ATTRIBUTES='"hf.Registrar.Roles=orderer,peer,user,client","hf.AffiliationMgr=true","hf.Revoker=true"'
          
          #3. Register the new user
-        if [ $TLS_ENABLED =="true" ]  
+        if [ $TLS_ENABLED == "true" ]  
         then
             fabric-ca-client register --id.type $USER_ROLE --id.name $USER_ID --id.secret $USER_PASS --id.affiliation $USER_ORG --id.attrs $ATTRIBUTES --tls.certfiles /vagrant/ca/server/config/ca-cert.pem
             __msg_info $PWD

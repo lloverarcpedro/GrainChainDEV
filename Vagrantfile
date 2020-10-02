@@ -51,6 +51,7 @@ Vagrant.configure("2") do |config|
     # Fabric CA Server
     config.vm.network "forwarded_port", guest: 7054, host: 7054
 
+    # For Peers Container
     config.vm.network "forwarded_port", guest: 8051, host: 8051
     config.vm.network "forwarded_port", guest: 8052, host: 8052
     config.vm.network "forwarded_port", guest: 8053, host: 8053
@@ -59,11 +60,24 @@ Vagrant.configure("2") do |config|
     config.vm.network "forwarded_port", guest: 9052, host: 9052
     config.vm.network "forwarded_port", guest: 9053, host: 9053
 
+    config.vm.network "forwarded_port", guest: 10051, host: 10051
+    config.vm.network "forwarded_port", guest: 10052, host: 10052
+    config.vm.network "forwarded_port", guest: 10053, host: 10053
+
+    config.vm.network "forwarded_port", guest: 11051, host: 11051
+    config.vm.network "forwarded_port", guest: 11052, host: 11052
+    config.vm.network "forwarded_port", guest: 11053, host: 11053
+
+    config.vm.network "forwarded_port", guest: 12051, host: 12051
+    config.vm.network "forwarded_port", guest: 12052, host: 12052
+    config.vm.network "forwarded_port", guest: 12053, host: 12053
+
+    config.vm.network "forwarded_port", guest: 13051, host: 13051
+    config.vm.network "forwarded_port", guest: 13052, host: 13052
+    config.vm.network "forwarded_port", guest: 13053, host: 13053
+
     # For Kafka Manager
     config.vm.network "forwarded_port", guest: 9000, host: 9000
-
-    # For API
-    config.vm.network "forwarded_port", guest: 4000, host: 4000
 
     #Rabbit MQ
     config.vm.network "forwarded_port", guest: 15672, host: 15672

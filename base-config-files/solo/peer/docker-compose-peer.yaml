@@ -12,6 +12,9 @@ volumes:
   data-peer2.grainchain.io:
   data-peer1.commodity.io:
   data-peer2.commodity.io:
+  data-peer3.commodity.io:
+  data-peer1.silosys.io:
+  data-peer2.silosys.io:
 
 services:
 # Grainchain peer1
@@ -20,9 +23,13 @@ services:
     image: hyperledger/fabric-peer:2.1.1
     # Override variables in this section
     environment:
+      - CORE_PEER_ID=peer1.grainchain.io
       - FABRIC_CFG_PATH=/var/hyperledger/config
       - FABRIC_LOGGING_SPEC=WARNING
+      - CORE_PEER_ADDRESS=peer1.grainchain.io:7051
       - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=${COMPOSE_PROJECT_NAME}_grainchainnet
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.grainchain.io:7051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer2.grainchain.io:8051,peer1.commodity.io:9051,peer1.silosys.io:12051
     # Start the peer node
     command: peer node start
     # Host folder mappings
@@ -53,9 +60,13 @@ services:
     image: hyperledger/fabric-peer:2.1.1
     # Override variables in this section
     environment:
+      - CORE_PEER_ID=peer2.grainchain.io
       - FABRIC_CFG_PATH=/var/hyperledger/config
       - FABRIC_LOGGING_SPEC=WARNING
+      - CORE_PEER_ADDRESS=peer2.grainchain.io:8051
       - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=${COMPOSE_PROJECT_NAME}_grainchainnet
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer2.grainchain.io:8051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer1.grainchain.io:7051,peer1.commodity.io:9051,peer1.silosys.io:12051
     # Start the peer node
     command: peer node start
     # Host folder mappings
@@ -87,9 +98,13 @@ services:
     image: hyperledger/fabric-peer:2.1.1
     # Override variables in this section
     environment:
+      - CORE_PEER_ID=peer1.commodity.io
       - FABRIC_CFG_PATH=/var/hyperledger/config
       - FABRIC_LOGGING_SPEC=WARNING
+      - CORE_PEER_ADDRESS=peer1.commodity.io:9051
       - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=${COMPOSE_PROJECT_NAME}_grainchainnet
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.commodity.io:9051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer2.commodity.io:10051,peer3.commodity.io:11051,peer1.grainchain.io:7051,peer1.silosys.io:12051
     # Start the peer node
     command: peer node start
     # Host folder mappings
@@ -117,9 +132,13 @@ services:
     image: hyperledger/fabric-peer:2.1.1
     # Override variables in this section
     environment:
+      - CORE_PEER_ID=peer2.commodity.io
       - FABRIC_CFG_PATH=/var/hyperledger/config
       - FABRIC_LOGGING_SPEC=WARNING
+      - CORE_PEER_ADDRESS=peer2.commodity.io:10051
       - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=${COMPOSE_PROJECT_NAME}_grainchainnet
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer2.commodity.io:10051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer1.commodity.io:9051,peer3.commodity.io:11051,peer1.grainchain.io:7051,peer1.silosys.io:12051
     # Start the peer node
     command: peer node start
     # Host folder mappings
@@ -138,5 +157,107 @@ services:
     ports:
       - 10051:7051
       - 10052:7052
+    networks:
+      - grainchainnet
+
+# Commodity peer3
+  peer3.commodity.io:
+    container_name: peer3.commodity.io
+    image: hyperledger/fabric-peer:2.1.1
+    # Override variables in this section
+    environment:
+      - CORE_PEER_ID=peer3.commodity.io
+      - FABRIC_CFG_PATH=/var/hyperledger/config
+      - FABRIC_LOGGING_SPEC=WARNING
+      - CORE_PEER_ADDRESS=peer3.commodity.io:11051
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=${COMPOSE_PROJECT_NAME}_grainchainnet
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer3.commodity.io:11051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer1.commodity.io:9051,peer2.commodity.io:10051,peer1.grainchain.io:7051,peer1.silosys.io:12051
+    # Start the peer node
+    command: peer node start
+    # Host folder mappings
+    volumes:
+      # Folder with channel create tx file
+      - /vagrant/peer/config:/var/hyperledger/config
+      # Map the folder with MSP for Peer
+      - /vagrant/ca/client/config/crypto-config/peerOrganizations/commodity.io/peers/peer3@commodity.io/msp:/var/hyperledger/msp  
+      # Added to support the TLS setup
+      #- ${PWD}/config/crypto-config/peerOrganizations/acme.io/peers/peer1.acme.io/tls:/var/hyperledger/tls
+      - /var/run/:/var/run/
+      - data-peer3.commodity.io:/var/hyperledger/production
+      - /vagrant/bin:/var/hyperledger/config/scripts
+      #gopath
+      - /vagrant/gopath:/opt/gopath
+    ports:
+      - 11051:7051
+      - 11052:7052
+    networks:
+      - grainchainnet
+
+# silosys peer1
+  peer1.silosys.io:
+    container_name: peer1.silosys.io
+    image: hyperledger/fabric-peer:2.1.1
+    # Override variables in this section
+    environment:
+      - CORE_PEER_ID=peer1.silosys.io
+      - FABRIC_CFG_PATH=/var/hyperledger/config
+      - FABRIC_LOGGING_SPEC=WARNING
+      - CORE_PEER_ADDRESS=peer1.silosys.io:12051
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=${COMPOSE_PROJECT_NAME}_grainchainnet
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1.silosys.io:12051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer2.silosys.io:13051,peer1.grainchain.io:7051,peer1.commodity.io:9051
+    # Start the peer node
+    command: peer node start
+    # Host folder mappings
+    volumes:
+      # Folder with channel create tx file
+      - /vagrant/peer/config:/var/hyperledger/config
+      # Map the folder with MSP for Peer
+      - /vagrant/ca/client/config/crypto-config/peerOrganizations/silosys.io/peers/peer1@silosys.io/msp:/var/hyperledger/msp  
+      # Added to support the TLS setup
+      #- ${PWD}/config/crypto-config/peerOrganizations/acme.io/peers/peer1.acme.io/tls:/var/hyperledger/tls
+      - /var/run/:/var/run/
+      - data-peer1.silosys.io:/var/hyperledger/production
+      - /vagrant/bin:/var/hyperledger/config/scripts
+      #gopath
+      - /vagrant/gopath:/opt/gopath
+    ports:
+      - 12051:7051
+      - 12052:7052
+    networks:
+      - grainchainnet
+
+# silosys peer2
+  peer2.silosys.io:
+    container_name: peer2.silosys.io
+    image: hyperledger/fabric-peer:2.1.1
+    # Override variables in this section
+    environment:
+      - CORE_PEER_ID=peer2.silosys.io
+      - FABRIC_CFG_PATH=/var/hyperledger/config
+      - FABRIC_LOGGING_SPEC=WARNING
+      - CORE_PEER_ADDRESS=peer2.silosys.io:13051
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=${COMPOSE_PROJECT_NAME}_grainchainnet
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer2.silosys.io:13051
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer1.silosys.io:12051,peer1.grainchain.io:7051,peer1.commodity.io:9051
+    # Start the peer node
+    command: peer node start
+    # Host folder mappings
+    volumes:
+      # Folder with channel create tx file
+      - /vagrant/peer/config:/var/hyperledger/config
+      # Map the folder with MSP for Peer
+      - /vagrant/ca/client/config/crypto-config/peerOrganizations/silosys.io/peers/peer2@silosys.io/msp:/var/hyperledger/msp  
+      # Added to support the TLS setup
+      #- ${PWD}/config/crypto-config/peerOrganizations/acme.io/peers/peer1.acme.io/tls:/var/hyperledger/tls
+      - /var/run/:/var/run/
+      - data-peer2.silosys.io:/var/hyperledger/production
+      - /vagrant/bin:/var/hyperledger/config/scripts
+      #gopath
+      - /vagrant/gopath:/opt/gopath
+    ports:
+      - 13051:7051
+      - 13052:7052
     networks:
       - grainchainnet

@@ -10,6 +10,7 @@ function    usage {
 # export FABRIC_CFG_PATH=./
 
 OPERATION=$1
+PDC_ENABLE=$2
 
 echo "CC Operation : $OPERATION    for   Org: $CURRENT_ORG_NAME"
 
@@ -26,21 +27,29 @@ function cc_install {
     if [ -f "$CC2_PACKAGE_FOLDER/$PACKAGE_NAME" ]; then
         echo "====> Step 1 Using the existing chaincode package:   $CC2_PACKAGE_FOLDER/$PACKAGE_NAME"
     else
-        echo "====> Step 1 Creating the chaincode package $CC2_PACKAGE_FOLDER/$PACKAGE_NAME"
+        echo "====> Step 1 Creating the chaincode package $CC2_PACKAGE_FOLDER/$PACKAGE_NAME from $CC_PATH"
         peer lifecycle chaincode package $CC2_PACKAGE_FOLDER/$PACKAGE_NAME -p $CC_PATH \
                     --label="$CC_NAME.$CC_VERSION-$INTERNAL_DEV_VERSION" -l $CC_LANGUAGE
     fi
     echo "====> Step 2   Installing chaincode (may fail if CC/version already there)"
     peer lifecycle chaincode install  $CC2_PACKAGE_FOLDER/$PACKAGE_NAME
-
+    
     # set the package ID
     cc_get_package_id
 
     # Approving the chaincode
     echo "===> Step 3   Approving the chaincode"
-    peer lifecycle chaincode approveformyorg --channelID $CC_CHANNEL_ID  --name $CC_NAME \
+    if [ $PDC_ENABLE == "true" ]
+    then
+        peer lifecycle chaincode approveformyorg --channelID $CC_CHANNEL_ID  --name $CC_NAME \
+                --version $CC_VERSION --package-id $PACKAGE_ID --sequence $CC2_SEQUENCE \
+                $CC2_INIT_REQUIRED    -o $ORDERER_ADDRESS  $TLS_PARAMETERS --waitForEvent \
+                --collections-config /var/hyperledger/config/pdc-configuration.json
+    else
+        peer lifecycle chaincode approveformyorg --channelID $CC_CHANNEL_ID  --name $CC_NAME \
             --version $CC_VERSION --package-id $PACKAGE_ID --sequence $CC2_SEQUENCE \
-            $CC2_INIT_REQUIRED    -o $ORDERER_ADDRESS  --waitForEvent
+            $CC2_INIT_REQUIRED    -o $ORDERER_ADDRESS  $TLS_PARAMETERS --waitForEvent
+    fi
 
     echo "====> Step 4   Query if installed successfully" 
     peer lifecycle chaincode queryinstalled
@@ -56,8 +65,15 @@ function cc_instantiate {
         echo "===> Step 1   Chaicode Already Committed - Ready for invoke & query."
     else
         echo "===> Step 1   Committing the chaincode"
-        peer lifecycle chaincode commit -C $CC_CHANNEL_ID -n $CC_NAME -v $CC_VERSION \
-            --sequence $CC2_SEQUENCE  $CC2_INIT_REQUIRED    --waitForEvent
+        if [ $PDC_ENABLE == "true" ]
+        then
+            peer lifecycle chaincode commit -C $CC_CHANNEL_ID -n $CC_NAME -v $CC_VERSION \
+                --sequence $CC2_SEQUENCE  $CC2_INIT_REQUIRED    --waitForEvent \
+                --collections-config /var/hyperledger/config/pdc-configuration.json
+        else
+            peer lifecycle chaincode commit -C $CC_CHANNEL_ID -n $CC_NAME -v $CC_VERSION \
+                --sequence $CC2_SEQUENCE  $CC2_INIT_REQUIRED    --waitForEvent
+        fi
 
         echo "===> Step 3   Initing the chaincode"
         peer chaincode invoke  -C $CC_CHANNEL_ID -n $CC_NAME -c $CC_CONSTRUCTOR \

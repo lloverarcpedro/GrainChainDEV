@@ -8,6 +8,7 @@ export GC_USER_PASSWORD="gc2020bc"
 export GC_ORDERER_ORG_NAME="orderer"
 export GC_PEER_ORG1="harvx"
 export GC_PEER_ORG2="commodity"
+export GC_PEER_ORG3="silosys"
 export GC_TLS_ENABLED="false"
 export GC_ORDERERS_COUNT=3
 export GC_PEERS_COUNT=4
@@ -49,6 +50,18 @@ do
         /vagrant/bin/add-gc-user.sh Admin admin $GC_USER_PASSWORD $GC_PEER_ORG2 $GC_TLS_ENABLED
     else
         /vagrant/bin/add-gc-user.sh peer$i peer $GC_USER_PASSWORD $GC_PEER_ORG2 tls
+    fi
+done
+
+#3.1 Create GC_PEER_ORG3 Admin and peers [ORG3]
+i=0
+for (( i=0; i <= $GC_PEERS_COUNT; ++i ))
+do
+    if [ $i == 0 ]
+    then
+        /vagrant/bin/add-gc-user.sh Admin admin $GC_USER_PASSWORD $GC_PEER_ORG3 $GC_TLS_ENABLED
+    else
+        /vagrant/bin/add-gc-user.sh peer$i peer $GC_USER_PASSWORD $GC_PEER_ORG3 tls
     fi
 done
 

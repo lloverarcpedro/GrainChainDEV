@@ -33,12 +33,18 @@ affiliations:
       - general
    commodity:
       - general
+      - seller
+      - buyer
       - v1
       - v2
    harvx:
       - general
       - driver
       - producer
+   silosys:
+      - general
+      - elevator 
+      - operator
 
 #############################################################################
 #  Used for ID registry setup
