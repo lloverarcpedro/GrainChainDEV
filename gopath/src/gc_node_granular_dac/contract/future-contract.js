@@ -17,6 +17,7 @@ class futureContract extends Contract {
       buyerId: ctx.clientIdentity.getID().toString(),
       maxWeight: maxWeight,
       commodityId: commodityId,
+      currentWeigth: 0,
       status: "empty",
       creator: ownerId,
       dataOwner: [ownerId],
@@ -39,7 +40,7 @@ class futureContract extends Contract {
       console.log("User Info", ctx.clientIdentity.getID().toString());
       await ctx.stub.setEvent(
         "contractAdded",
-        Buffer.from(JSON.stringify(contractAsJson))
+        Buffer.from(JSON.stringify(contract))
       );
       return "Contract Added To The Ledger Succesfully...";
     } catch (error) {

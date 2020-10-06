@@ -58,7 +58,7 @@ echo "----- Sleep 15 seconds before invoke -----"
 sleep 15
 ./vagrant/setup/tool-bins/cc-test.sh invoke 
 
-export CORE_PEER_ADDRESS="peer2.commodity.io:7051"
+export CORE_PEER_ADDRESS="peer1.commodity.io:7051"
 echo "----- Sleep 15 seconds before query -----"
 sleep 15
 # ./vagrant/setup/tool-bins/cc-test.sh invoke
