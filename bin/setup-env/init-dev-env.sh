@@ -13,7 +13,7 @@ export GC_PDC_ENABLED="true"
 ##### CLEAN DOCKER #####
 docker rm $(docker stop $(docker ps -aq))
 docker volume rm $(docker volume list -q)
-docker network prune
+docker network prune --force
 docker network rm $(docker network list -q)
 #CLEAN PROJECT DIRECTORIES
 rm -rf $FABRIC_CA_CLIENT_HOME

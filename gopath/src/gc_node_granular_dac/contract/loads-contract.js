@@ -46,7 +46,9 @@ class loadsContract extends Contract {
       const currentWeigth = contractAsJson["currentWeigth"];
       const maxWeigth = contractAsJson["maxWeight"];
       if((currentWeigth-0)+(weight-0) > (maxWeigth-0)){
-        throw new Error("ERROR: Load weigth exceeds contract max weigth, needed: ", maxWeigth-currentWeigth);
+        const left = (maxWeigth-0)-(currentWeigth-0)
+        console.log("ERROR: Load weigth exceeds contract max weigth, needed: ", left)
+        throw new Error("ERROR: Load weigth exceeds contract max weigth, needed: "+ left.toString());
       }
 
       //Check if accepting this kind of commodity
@@ -68,6 +70,8 @@ class loadsContract extends Contract {
       //Update contract status if al loads has been added
       if((currentWeigth-0) + (weight-0) >= (maxWeigth-0)){
         contractAsJson["status"]="finished"
+      }else{
+        contractAsJson["status"]="loading"
       }
 
       await ctx.stub.putState(
