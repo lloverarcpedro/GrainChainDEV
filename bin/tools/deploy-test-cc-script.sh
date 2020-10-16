@@ -42,7 +42,7 @@ do
 done
 
 #Install chaincode for ORG3
-export GC_ORG_NAME="silosys"
+export GC_ORG_NAME="silosys" \
 export CORE_PEER_MSPCONFIGPATH="/var/hyperledger/config/vagrant/ca/client/config/crypto-config/peerOrganizations/silosys.io/users/Admin@silosys.io/msp"
 for (( i=1; i <= $GC_PEER_ORG3; ++i ))
 do

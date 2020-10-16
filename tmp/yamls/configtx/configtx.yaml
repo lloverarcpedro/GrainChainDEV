@@ -1,0 +1,299 @@
+
+#   CAPABILITIES
+Capabilities:
+  Application: &ApplicationCapabilities
+    V2_0: true
+  Orderer: &OrdererCapabilities
+    V2_0: true
+  Channel: &ChannelCapabilities
+    V2_0: true
+
+################################################################################
+#
+#   Section: Organizations
+#
+#   - This section defines the different organizational identities which will
+#   be referenced later in the configuration.
+#
+################################################################################
+Organizations:
+- &org0
+   Name: org0
+   # ID to load the MSP definition as
+   ID: org0MSP
+   # MSPDir is the filesystem path which contains the MSP configuration
+   MSPDir: /vagrant/tmp/hyperledger/org0/msp
+   Policies: &OrdererPolicies
+      Readers:
+          Type: Signature
+          Rule: "OR('org0MSP.member')"
+      Writers:
+          Type: Signature
+          Rule: "OR('org0MSP.member')"
+      Admins:
+          Type: Signature
+          # ONLY Admin Role can carry out administration activities
+          Rule: "OR('org0MSP.admin')"
+      Endorsement:
+          Type: Signature
+          Rule: "OR('org0MSP.member')"
+
+- &org1
+   Name: org1
+   # ID to load the MSP definition as
+   ID: org1MSP
+   # MSPDir is the filesystem path which contains the MSP configuration
+   MSPDir: /vagrant/tmp/hyperledger/org1/msp
+   Policies: &org1Policies
+      Readers:
+          Type: Signature
+          # Any member can READ e.g., query
+          Rule: "OR('org1MSP.member')"
+      Writers:
+          Type: Signature
+          # Any member can WRITE e.g., submit transaction
+          Rule: "OR('org1MSP.member')"
+      Admins:
+          Type: Signature
+          # Either Grainchain admin OR Orderer Admin can carry out admin activities
+          Rule: "OR('org1MSP.member')"
+      Endorsement:
+          Type: Signature
+          # Any member can act as an endorser
+          Rule: "OR('org1MSP.member')"
+   AnchorPeers:
+      # AnchorPeers defines the location of peers which can be used
+      # for cross org gossip communication.  Note, this value is only
+      # encoded in the genesis block in the Application section context
+      - Host: peer1-org1
+        Port: 7051
+
+- &org2
+   Name: org2
+   # ID to load the MSP definition as
+   ID: org2MSP
+   # MSPDir is the filesystem path which contains the MSP configuration
+   MSPDir: /vagrant/tmp/hyperledger/org2/msp
+   Policies: &org2Policies
+      Readers:
+          Type: Signature
+          # Any member can READ e.g., query
+          Rule: "OR('org2MSP.member')"
+      Writers:
+          Type: Signature
+          # Any member can WRITE e.g., submit transaction
+          Rule: "OR('org2MSP.member')"
+      Admins:
+          Type: Signature
+          # Either Grainchain admin OR Orderer Admin can carry out admin activities
+          Rule: "OR('org2MSP.member')"
+      Endorsement:
+          Type: Signature
+          # Any member can act as an endorser
+          Rule: "OR('org2MSP.member')"
+   AnchorPeers:
+      # AnchorPeers defines the location of peers which can be used
+      # for cross org gossip communication.  Note, this value is only
+      # encoded in the genesis block in the Application section context
+      - Host: peer1-org2
+        Port: 7051
+
+
+Orderer: &OrdererDefaults
+
+  OrdererType: solo
+
+  Addresses:
+    # UPDATE THE IP ADDRESS
+    - orderer1-org0:7050
+  # Policies for Orderer
+  Policies:
+    Readers:
+        Type: ImplicitMeta
+        Rule: "ANY Readers"
+    Writers:
+        Type: ImplicitMeta
+        Rule: "ANY Writers"
+    Admins:
+        Type: ImplicitMeta  
+        # UPDATED December 15, 2019
+        Rule: "ANY Admins"
+        # Rule: "MAJORITY Admins"
+
+    # BlockValidation specifies what signatures must be included in the block
+    # from the orderer for the peer to validate it.
+    # Starting Fabric 2.x this is REQUIRED
+    BlockValidation:
+        Type: ImplicitMeta
+        Rule: "ANY Writers"
+  
+  # Batch Timeout: The amount of time to wait before creating a batch
+  BatchTimeout: 2s
+
+  # Batch Size: Controls the number of messages batched into a block
+  BatchSize:
+    MaxMessageCount: 10
+    AbsoluteMaxBytes: 98 MB
+    PreferredMaxBytes: 512 KB
+
+  Capabilities:
+    <<: *OrdererCapabilities
+
+################################################################################
+#
+#   SECTION: Application
+#
+#   This section defines the values to encode into a config transaction or
+#   genesis block for application related parameters
+#
+################################################################################
+Application: &ApplicationDefaults
+  ACLs: &ACLsDefault
+    
+    # ACL policy for lscc's "getid" function
+    lscc/ChaincodeExists: /Channel/Application/Readers
+
+    # ACL policy for lscc's "getdepspec" function
+    lscc/GetDeploymentSpec: /Channel/Application/Readers
+
+    # ACL policy for lscc's "getccdata" function
+    lscc/GetChaincodeData: /Channel/Application/Readers
+
+    # ACL Policy for lscc's "getchaincodes" function
+    lscc/GetInstantiatedChaincodes: /Channel/Application/Readers
+    
+
+    #---Query System Chaincode (qscc) function to policy mapping for access control---#
+
+    # ACL policy for qscc's "GetChainInfo" function
+    qscc/GetChainInfo: /Channel/Application/Readers
+    
+
+    # ACL policy for qscc's "GetBlockByNumber" function
+    qscc/GetBlockByNumber: /Channel/Application/Readers
+
+    # ACL policy for qscc's  "GetBlockByHash" function
+    qscc/GetBlockByHash: /Channel/Application/Readers
+
+    # ACL policy for qscc's "GetTransactionByID" function
+    qscc/GetTransactionByID: /Channel/Application/Readers
+
+    # ACL policy for qscc's "GetBlockByTxID" function
+    qscc/GetBlockByTxID: /Channel/Application/Readers
+
+    #---Configuration System Chaincode (cscc) function to policy mapping for access control---#
+
+    # ACL policy for cscc's "GetConfigBlock" function
+    cscc/GetConfigBlock: /Channel/Application/Readers
+
+    # ACL policy for cscc's "GetConfigTree" function
+    cscc/GetConfigTree: /Channel/Application/Readers
+
+    # ACL policy for cscc's "SimulateConfigTreeUpdate" function
+    cscc/SimulateConfigTreeUpdate: /Channel/Application/Readers
+
+    #---Miscellanesous peer function to policy mapping for access control---#
+
+    # ACL policy for invoking chaincodes on peer
+    peer/Propose: /Channel/Application/Writers
+
+    # ACL policy for chaincode to chaincode invocation
+    peer/ChaincodeToChaincode: /Channel/Application/Readers
+
+    #---Events resource to policy mapping for access control###---#
+
+    # ACL policy for sending block events
+    event/Block: /Channel/Application/Readers
+
+    # ACL policy for sending filtered block events
+    event/FilteredBlock: /Channel/Application/Readers
+
+    # Chaincode Lifecycle Policies introduced in Fabric 2.x
+    # ACL policy for _lifecycle's "CheckCommitReadiness" function
+    _lifecycle/CheckCommitReadiness: /Channel/Application/Writers
+
+    # ACL policy for _lifecycle's "CommitChaincodeDefinition" function
+    _lifecycle/CommitChaincodeDefinition: /Channel/Application/Writers
+
+    # ACL policy for _lifecycle's "QueryChaincodeDefinition" function
+    _lifecycle/QueryChaincodeDefinition: /Channel/Application/Readers
+   
+  # Default policies
+  Policies: &ApplicationDefaultPolicies
+
+    # --channel-config-policy
+    Endorsement:
+        Type: ImplicitMeta
+        Rule: "ANY Endorsement"
+    Readers:
+        Type: ImplicitMeta
+        Rule: "ANY Readers"
+    Writers:
+        Type: ImplicitMeta
+        Rule: "ANY Writers"
+    Admins:
+        Type: ImplicitMeta
+        Rule: "ANY Admins"
+
+    # Introduced in Fabric 2.x for Chaincode Lifecycle
+    LifecycleEndorsement:
+        Type: ImplicitMeta
+        Rule: "ANY Endorsement"
+
+
+   # Organizations is the list of orgs which are defined as participants on
+   # the application side of the network
+  Organizations:
+  Capabilities:
+    <<: *ApplicationCapabilities
+  
+#  CHANNEL
+Channel: &ChannelDefaults
+  Policies:
+    Readers:
+        Type: ImplicitMeta
+        Rule: "ANY Readers"
+    Writers:
+        Type: ImplicitMeta
+        Rule: "ANY Writers"
+    Admins:
+        Type: ImplicitMeta
+        Rule: "ANY Admins"
+
+  Capabilities:
+    <<: *ChannelCapabilities
+
+  
+
+################################################################################
+#
+#   Profile
+#
+#   - Different configuration profiles may be encoded here to be specified
+#   as parameters to the configtxgen tool
+#
+################################################################################
+Profiles:
+
+  OrgsOrdererGenesis:
+    <<: *ChannelDefaults
+    Orderer:
+        <<: *OrdererDefaults
+        
+        Organizations:
+        - *org0
+
+    Consortiums:
+        SampleConsortium:
+          Organizations:
+            - *org1
+            - *org2
+
+  OrgsChannel:
+    <<: *ChannelDefaults
+    Consortium: SampleConsortium
+    Application:
+        <<: *ApplicationDefaults
+        Organizations:
+        - *org1
+        - *org2

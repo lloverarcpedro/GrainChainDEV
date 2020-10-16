@@ -17,7 +17,7 @@ echo "CC Operation : $OPERATION    for   Org: $CURRENT_ORG_NAME"
 # Extracts the package id from installed package
 function cc_get_package_id {  
     OUTPUT=$(peer lifecycle chaincode queryinstalled -O json)
-    PACKAGE_ID=$(echo $OUTPUT | jq -r ".installed_chaincodes[]|select(.label==\"$LABEL\")|.package_id")
+    PACKAGE_ID=$(echo $OUTPUT | jq -r ".installed_chaincodes[]|select(.label==\"$LABEL\")|.package_id") 
 }
 
 
