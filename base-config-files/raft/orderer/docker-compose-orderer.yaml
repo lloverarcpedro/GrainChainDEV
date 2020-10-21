@@ -1,82 +1,167 @@
-# Compose file for launching the orderer service dev setup with
-# just 1 orderer in solo conf :-(
-
-version: '2'
+version: '2.4'
 
 networks:
   grainchainnet:
-
-# Storage for containers
-volumes:
-    data-orderer1.grainchain.io:
-    data-orderer2.grainchain.io:
-    data-orderer3.grainchain.io:
+    name: gcbc_grainchainnet
+    driver: bridge
 
 services:
-
-  # Orderer service
   orderer1.grainchain.io:
-    container_name: orderer1.grainchain.io
-    image: hyperledger/fabric-orderer:2.1.1
-    command: orderer
-    # Override environment variables for orderer in this section
+    container_name: orderer1.grainchain.io 
+    image: hyperledger/fabric-orderer 
     environment:
-      - FABRIC_CFG_PATH=/var/hyperledger/config
-      - FABRIC_LOGGING_SPEC=DEBUG
-    # Host folder mappings
+      - FABRIC_CFG_PATH=/tmp/hyperledger/orderer/config
+      - COMPOSE_PROJECT_NAME=gcbc
+      - ORDERER_HOME=/tmp/hyperledger/orderer 
+      - ORDERER_HOST=orderer1.grainchain.io
+      - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0 
+      - ORDERER_GENERAL_GENESISMETHOD=file
+      - ORDERER_GENERAL_GENESISFILE=/tmp/hyperledger/orderer/config/genesis.block 
+      - ORDERER_GENERAL_LOCALMSPID=orderersMSP
+      - ORDERER_GENERAL_LOCALMSPDIR=/tmp/hyperledger/orderer/msp
+      # TLS SETUP
+      - ORDERER_GENERAL_TLS_ENABLED=true
+      - ORDERER_GENERAL_TLS_CERTIFICATE=/tmp/hyperledger/orderer/tls-msp/signcerts/cert.pem
+      - ORDERER_GENERAL_TLS_PRIVATEKEY=/tmp/hyperledger/orderer/tls-msp/keystore/key.pem
+      - ORDERER_GENERAL_TLS_ROOTCAS=[/tmp/hyperledger/orderer/tls-msp/tlscacerts/tls-0-0-0-0-7052.pem]
+      # RAFT SETUP
+      - ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE=/tmp/hyperledger/orderer/tls-msp/signcerts/cert.pem
+      - ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY=/tmp/hyperledger/orderer/tls-msp/keystore/key.pem
+      - ORDERER_GENERAL_CLUSTER_ROOTCAS=[/tmp/hyperledger/orderer/tls-msp/tlscacerts/tls-0-0-0-0-7052.pem]
+      #LOG SETUP
+      - FABRIC_LOGGING_SPEC=INFO 
     volumes:
-    # Folder with genesis block
-    - /vagrant/orderer/config:/var/hyperledger/config
-    # Map the folder with MSP for orderer
-    - /vagrant/ca/client/config/crypto-config/ordererOrganizations/orderer.io/orderers/orderer1@orderer.io/msp:/var/hyperledger/msp
-    # Added to support the TLS setup
-    #- ${PWD}/config/crypto-config/ordererOrganizations/acme.com/orderers/orderer.acme.com/tls:/var/hyperledger/tls
-    - data-orderer1.grainchain.io:/var/ledger
+      - /vagrant/orderer/orderer1.grainchain.io/config:/tmp/hyperledger/orderer/config
+      - /vagrant/ca/client/ordererOrganizations/orderers/orderers/orderer1.grainchain.io:/tmp/hyperledger/orderer
     ports:
       - 7050:7050
     networks:
-      - grainchainnet 
+      - grainchainnet
 
   orderer2.grainchain.io:
-    container_name: orderer2.grainchain.io
-    image: hyperledger/fabric-orderer:2.1.1
-    command: orderer
-    # Override environment variables for orderer in this section
+    container_name: orderer2.grainchain.io 
+    image: hyperledger/fabric-orderer 
     environment:
-      - FABRIC_CFG_PATH=/var/hyperledger/config
-      - FABRIC_LOGGING_SPEC=DEBUG
-    # Host folder mappings
+      - FABRIC_CFG_PATH=/tmp/hyperledger/orderer/config
+      - COMPOSE_PROJECT_NAME=gcbc
+      - ORDERER_HOME=/tmp/hyperledger/orderer 
+      - ORDERER_HOST=orderer2.grainchain.io
+      - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0 
+      - ORDERER_GENERAL_GENESISMETHOD=file
+      - ORDERER_GENERAL_GENESISFILE=/tmp/hyperledger/orderer/config/genesis.block 
+      - ORDERER_GENERAL_LOCALMSPID=orderersMSP
+      - ORDERER_GENERAL_LOCALMSPDIR=/tmp/hyperledger/orderer/msp
+      # TLS SETUP
+      - ORDERER_GENERAL_TLS_ENABLED=true
+      - ORDERER_GENERAL_TLS_CERTIFICATE=/tmp/hyperledger/orderer/tls-msp/signcerts/cert.pem
+      - ORDERER_GENERAL_TLS_PRIVATEKEY=/tmp/hyperledger/orderer/tls-msp/keystore/key.pem
+      - ORDERER_GENERAL_TLS_ROOTCAS=[/tmp/hyperledger/orderer/tls-msp/tlscacerts/tls-0-0-0-0-7052.pem]
+      # RAFT SETUP
+      - ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE=/tmp/hyperledger/orderer/tls-msp/signcerts/cert.pem
+      - ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY=/tmp/hyperledger/orderer/tls-msp/keystore/key.pem
+      - ORDERER_GENERAL_CLUSTER_ROOTCAS=[/tmp/hyperledger/orderer/tls-msp/tlscacerts/tls-0-0-0-0-7052.pem]
+      #LOG SETUP
+      - FABRIC_LOGGING_SPEC=INFO 
     volumes:
-    # Folder with genesis block
-    - /vagrant/orderer/config:/var/hyperledger/config
-    # Map the folder with MSP for orderer
-    - /vagrant/ca/client/config/crypto-config/ordererOrganizations/orderer.io/orderers/orderer2.orderer.io/msp:/var/hyperledger/msp
-    # Added to support the TLS setup
-    #- ${PWD}/config/crypto-config/ordererOrganizations/acme.com/orderers/orderer.acme.com/tls:/var/hyperledger/tls
-    - data-orderer2.grainchain.io:/var/ledger
+      - /vagrant/orderer/orderer2.grainchain.io/config:/tmp/hyperledger/orderer/config
+      - /vagrant/ca/client/ordererOrganizations/orderers/orderers/orderer2.grainchain.io:/tmp/hyperledger/orderer
     ports:
       - 8050:7050
     networks:
-      - grainchainnet 
+      - grainchainnet
 
   orderer3.grainchain.io:
-    container_name: orderer3.grainchain.io
-    image: hyperledger/fabric-orderer:2.1.1
-    command: orderer
-    # Override environment variables for orderer in this section
+    container_name: orderer3.grainchain.io 
+    image: hyperledger/fabric-orderer 
     environment:
-      - FABRIC_CFG_PATH=/var/hyperledger/config
-      - FABRIC_LOGGING_SPEC=DEBUG
-    # Host folder mappings
+      - FABRIC_CFG_PATH=/tmp/hyperledger/orderer/config
+      - COMPOSE_PROJECT_NAME=gcbc
+      - ORDERER_HOME=/tmp/hyperledger/orderer 
+      - ORDERER_HOST=orderer3.grainchain.io
+      - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0 
+      - ORDERER_GENERAL_GENESISMETHOD=file
+      - ORDERER_GENERAL_GENESISFILE=/tmp/hyperledger/orderer/config/genesis.block 
+      - ORDERER_GENERAL_LOCALMSPID=orderersMSP
+      - ORDERER_GENERAL_LOCALMSPDIR=/tmp/hyperledger/orderer/msp
+      # TLS SETUP
+      - ORDERER_GENERAL_TLS_ENABLED=true
+      - ORDERER_GENERAL_TLS_CERTIFICATE=/tmp/hyperledger/orderer/tls-msp/signcerts/cert.pem
+      - ORDERER_GENERAL_TLS_PRIVATEKEY=/tmp/hyperledger/orderer/tls-msp/keystore/key.pem
+      - ORDERER_GENERAL_TLS_ROOTCAS=[/tmp/hyperledger/orderer/tls-msp/tlscacerts/tls-0-0-0-0-7052.pem]
+      # RAFT SETUP
+      - ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE=/tmp/hyperledger/orderer/tls-msp/signcerts/cert.pem
+      - ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY=/tmp/hyperledger/orderer/tls-msp/keystore/key.pem
+      - ORDERER_GENERAL_CLUSTER_ROOTCAS=[/tmp/hyperledger/orderer/tls-msp/tlscacerts/tls-0-0-0-0-7052.pem]
+      #LOG SETUP
+      - FABRIC_LOGGING_SPEC=INFO 
     volumes:
-    # Folder with genesis block
-    - /vagrant/orderer/config:/var/hyperledger/config
-    # Map the folder with MSP for orderer
-    - /vagrant/ca/client/config/crypto-config/ordererOrganizations/orderer.io/orderers/orderer3.orderer.io/msp:/var/hyperledger/msp
-    # Added to support the TLS setup
-    #- ${PWD}/config/crypto-config/ordererOrganizations/acme.com/orderers/orderer.acme.com/tls:/var/hyperledger/tls
-    - data-orderer3.grainchain.io:/var/ledger
+      - /vagrant/orderer/orderer3.grainchain.io/config:/tmp/hyperledger/orderer/config
+      - /vagrant/ca/client/ordererOrganizations/orderers/orderers/orderer3.grainchain.io:/tmp/hyperledger/orderer
     ports:
       - 9050:7050
     networks:
-      - grainchainnet 
+      - grainchainnet
+  
+  orderer4.grainchain.io:
+    container_name: orderer4.grainchain.io 
+    image: hyperledger/fabric-orderer 
+    environment:
+      - FABRIC_CFG_PATH=/tmp/hyperledger/orderer/config
+      - COMPOSE_PROJECT_NAME=gcbc
+      - ORDERER_HOME=/tmp/hyperledger/orderer 
+      - ORDERER_HOST=orderer4.grainchain.io
+      - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0 
+      - ORDERER_GENERAL_GENESISMETHOD=file
+      - ORDERER_GENERAL_GENESISFILE=/tmp/hyperledger/orderer/config/genesis.block 
+      - ORDERER_GENERAL_LOCALMSPID=orderersMSP
+      - ORDERER_GENERAL_LOCALMSPDIR=/tmp/hyperledger/orderer/msp
+      # TLS SETUP
+      - ORDERER_GENERAL_TLS_ENABLED=true
+      - ORDERER_GENERAL_TLS_CERTIFICATE=/tmp/hyperledger/orderer/tls-msp/signcerts/cert.pem
+      - ORDERER_GENERAL_TLS_PRIVATEKEY=/tmp/hyperledger/orderer/tls-msp/keystore/key.pem
+      - ORDERER_GENERAL_TLS_ROOTCAS=[/tmp/hyperledger/orderer/tls-msp/tlscacerts/tls-0-0-0-0-7052.pem]
+      # RAFT SETUP
+      - ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE=/tmp/hyperledger/orderer/tls-msp/signcerts/cert.pem
+      - ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY=/tmp/hyperledger/orderer/tls-msp/keystore/key.pem
+      - ORDERER_GENERAL_CLUSTER_ROOTCAS=[/tmp/hyperledger/orderer/tls-msp/tlscacerts/tls-0-0-0-0-7052.pem]
+      #LOG SETUP
+      - FABRIC_LOGGING_SPEC=INFO 
+    volumes:
+      - /vagrant/orderer/orderer4.grainchain.io/config:/tmp/hyperledger/orderer/config
+      - /vagrant/ca/client/ordererOrganizations/orderers/orderers/orderer4.grainchain.io:/tmp/hyperledger/orderer
+    ports:
+      - 10050:7050
+    networks:
+      - grainchainnet
+
+  orderer5.grainchain.io:
+    container_name: orderer5.grainchain.io 
+    image: hyperledger/fabric-orderer 
+    environment:
+      - FABRIC_CFG_PATH=/tmp/hyperledger/orderer/config
+      - COMPOSE_PROJECT_NAME=gcbc
+      - ORDERER_HOME=/tmp/hyperledger/orderer 
+      - ORDERER_HOST=orderer5.grainchain.io
+      - ORDERER_GENERAL_LISTENADDRESS=0.0.0.0 
+      - ORDERER_GENERAL_GENESISMETHOD=file
+      - ORDERER_GENERAL_GENESISFILE=/tmp/hyperledger/orderer/config/genesis.block 
+      - ORDERER_GENERAL_LOCALMSPID=orderersMSP
+      - ORDERER_GENERAL_LOCALMSPDIR=/tmp/hyperledger/orderer/msp
+      # TLS SETUP
+      - ORDERER_GENERAL_TLS_ENABLED=true
+      - ORDERER_GENERAL_TLS_CERTIFICATE=/tmp/hyperledger/orderer/tls-msp/signcerts/cert.pem
+      - ORDERER_GENERAL_TLS_PRIVATEKEY=/tmp/hyperledger/orderer/tls-msp/keystore/key.pem
+      - ORDERER_GENERAL_TLS_ROOTCAS=[/tmp/hyperledger/orderer/tls-msp/tlscacerts/tls-0-0-0-0-7052.pem]
+      # RAFT SETUP
+      - ORDERER_GENERAL_CLUSTER_CLIENTCERTIFICATE=/tmp/hyperledger/orderer/tls-msp/signcerts/cert.pem
+      - ORDERER_GENERAL_CLUSTER_CLIENTPRIVATEKEY=/tmp/hyperledger/orderer/tls-msp/keystore/key.pem
+      - ORDERER_GENERAL_CLUSTER_ROOTCAS=[/tmp/hyperledger/orderer/tls-msp/tlscacerts/tls-0-0-0-0-7052.pem]
+      #LOG SETUP
+      - FABRIC_LOGGING_SPEC=INFO 
+    volumes:
+      - /vagrant/orderer/orderer5.grainchain.io/config:/tmp/hyperledger/orderer/config
+      - /vagrant/ca/client/ordererOrganizations/orderers/orderers/orderer5.grainchain.io:/tmp/hyperledger/orderer
+    ports:
+      - 11050:7050
+    networks:
+      - grainchainnet

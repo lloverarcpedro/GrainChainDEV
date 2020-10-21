@@ -44,6 +44,10 @@ fabric-ca-client register -d --id.name peer2-org1 --id.secret peer2PW --id.type 
 fabric-ca-client register -d --id.name peer1-org2 --id.secret peer1PW --id.type peer -u https://0.0.0.0:7052
 fabric-ca-client register -d --id.name peer2-org2 --id.secret peer2PW --id.type peer -u https://0.0.0.0:7052
 fabric-ca-client register -d --id.name orderer1-org0 --id.secret ordererPW --id.type orderer -u https://0.0.0.0:7052
+fabric-ca-client register -d --id.name orderer2-org0 --id.secret ordererPW --id.type orderer -u https://0.0.0.0:7052
+fabric-ca-client register -d --id.name orderer3-org0 --id.secret ordererPW --id.type orderer -u https://0.0.0.0:7052
+fabric-ca-client register -d --id.name orderer4-org0 --id.secret ordererPW --id.type orderer -u https://0.0.0.0:7052
+fabric-ca-client register -d --id.name orderer5-org0 --id.secret ordererPW --id.type orderer -u https://0.0.0.0:7052
 
 
 
@@ -51,6 +55,10 @@ export FABRIC_CA_CLIENT_TLS_CERTFILES=/vagrant/tmp/hyperledger/org0-ca/crypto/ca
 export FABRIC_CA_CLIENT_HOME=/vagrant/tmp/hyperledger/org0-ca/admin
 fabric-ca-client enroll -d -u https://rca-org0-admin:rca-org0-adminpw@0.0.0.0:7053 
 fabric-ca-client register -d --id.name orderer1-org0 --id.secret ordererpw --id.type orderer -u https://0.0.0.0:7053
+fabric-ca-client register -d --id.name orderer2-org0 --id.secret ordererpw --id.type orderer -u https://0.0.0.0:7053
+fabric-ca-client register -d --id.name orderer3-org0 --id.secret ordererpw --id.type orderer -u https://0.0.0.0:7053
+fabric-ca-client register -d --id.name orderer4-org0 --id.secret ordererpw --id.type orderer -u https://0.0.0.0:7053
+fabric-ca-client register -d --id.name orderer5-org0 --id.secret ordererpw --id.type orderer -u https://0.0.0.0:7053
 fabric-ca-client register -d --id.name admin-org0 --id.secret org0adminpw --id.type admin --id.attrs "hf.Registrar.Roles=client,hf.Registrar.Attributes=*,hf.Revoker=true,hf.GenCRL=true,admin=true:ecert,abac.init=true:ecert" -u https://0.0.0.0:7053
 
 
@@ -159,7 +167,3 @@ mkdir /vagrant/tmp/hyperledger/org2/peer1/msp/admincerts
 mkdir /vagrant/tmp/hyperledger/org2/peer2/msp/admincerts
 cp /vagrant/tmp/hyperledger/org2/admin/msp/signcerts/cert.pem /vagrant/tmp/hyperledger/org2/peer1/msp/admincerts/org2-admin-cert.pem
 cp /vagrant/tmp/hyperledger/org2/admin/msp/signcerts/cert.pem /vagrant/tmp/hyperledger/org2/peer2/msp/admincerts/org2-admin-cert.pem
-
-
-cd /vagrant/tmp/hyperledger
-find . -iname "*/keystore/*"

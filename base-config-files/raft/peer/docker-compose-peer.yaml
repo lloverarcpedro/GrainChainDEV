@@ -1,0 +1,137 @@
+version: '2.4'
+
+networks:
+  grainchainnet:
+    name: gcbc_grainchainnet
+    driver: bridge
+
+services:
+  peer1-harvx.grainchain.io:
+    container_name: peer1-harvx.grainchain.io 
+    image: hyperledger/fabric-peer 
+    environment:
+      - FABRIC_CFG_PATH=/tmp/hyperledger/config
+      - COMPOSE_PROJECT_NAME=gcbc
+      - CORE_PEER_ID=peer1-harvx.grainchain.io
+      - CORE_PEER_ADDRESS=peer1-harvx.grainchain.io:7051
+      - CORE_PEER_LOCALMSPID=harvxMSP
+      - CORE_PEER_MSPCONFIGPATH=/tmp/hyperledger/peer/msp
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=gcbc_grainchainnet
+      - FABRIC_LOGGING_SPEC=info
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/tmp/hyperledger/peer/tls-msp/signcerts/cert.pem 
+      - CORE_PEER_TLS_KEY_FILE=/tmp/hyperledger/peer/tls-msp/keystore/key.pem
+      - CORE_PEER_TLS_ROOTCERT_FILE=/tmp/hyperledger/peer/tls-msp/tlscacerts/tls-0-0-0-0-7052.pem
+      - CORE_PEER_GOSSIP_USELEADERELECTION=true
+      - CORE_PEER_GOSSIP_ORGLEADER=false
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1-harvx.grainchain.io:7051 
+      - CORE_PEER_GOSSIP_SKIPHANDSHAKE=true
+    working_dir: /opt/gopath/src/github.com/hyperledger
+    volumes:
+      - /vagrant/peer/peer1-harvx.grainchain.io/config/:/tmp/hyperledger/config
+      - /var/run:/host/var/run
+      - /vagrant/ca/client/peerOrganizations/harvx/peers/peer1-harvx.grainchain.io:/tmp/hyperledger/peer 
+      - /vagrant/tmp/hyperledger/fabric-samples/chaincode/abac/go:/opt/gopath/src/github.com/hyperledger/fabric-samples/chaincode/abac/go
+    networks:
+      - grainchainnet
+    ports:
+      - 7051:7051
+
+  peer2-harvx.grainchain.io:
+    container_name: peer2-harvx.grainchain.io 
+    image: hyperledger/fabric-peer 
+    environment:
+      - FABRIC_CFG_PATH=/tmp/hyperledger/config
+      - COMPOSE_PROJECT_NAME=gcbc
+      - CORE_PEER_ID=peer2-harvx.grainchain.io
+      - CORE_PEER_ADDRESS=peer2-harvx.grainchain.io:7051
+      - CORE_PEER_LOCALMSPID=harvxMSP
+      - CORE_PEER_MSPCONFIGPATH=/tmp/hyperledger/peer/msp
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=gcbc_grainchainnet
+      - FABRIC_LOGGING_SPEC=info
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/tmp/hyperledger/peer/tls-msp/signcerts/cert.pem 
+      - CORE_PEER_TLS_KEY_FILE=/tmp/hyperledger/peer/tls-msp/keystore/key.pem
+      - CORE_PEER_TLS_ROOTCERT_FILE=/tmp/hyperledger/peer/tls-msp/tlscacerts/tls-0-0-0-0-7052.pem
+      - CORE_PEER_GOSSIP_USELEADERELECTION=true
+      - CORE_PEER_GOSSIP_ORGLEADER=false
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer2-harvx.grainchain.io:7051 
+      - CORE_PEER_GOSSIP_SKIPHANDSHAKE=true
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer1-harvx.grainchain.io:7051
+    working_dir: /opt/gopath/src/github.com/hyperledger
+    volumes:
+      - /vagrant/peer/peer2-harvx.grainchain.io/config/:/tmp/hyperledger/config
+      - /var/run:/host/var/run
+      - /vagrant/ca/client/peerOrganizations/harvx/peers/peer2-harvx.grainchain.io:/tmp/hyperledger/peer 
+      - /vagrant/tmp/hyperledger/fabric-samples/chaincode/abac/go:/opt/gopath/src/github.com/hyperledger/fabric-samples/chaincode/abac/go
+    networks:
+      - grainchainnet
+    ports:
+      - 8051:7051
+
+  peer1-commodity.grainchain.io:
+    container_name: peer1-commodity.grainchain.io 
+    image: hyperledger/fabric-peer 
+    environment:
+      - FABRIC_CFG_PATH=/tmp/hyperledger/config
+      - COMPOSE_PROJECT_NAME=gcbc
+      - CORE_PEER_ID=peer1-commodity.grainchain.io
+      - CORE_PEER_ADDRESS=peer1-commodity.grainchain.io:7051
+      - CORE_PEER_LOCALMSPID=commodityMSP
+      - CORE_PEER_MSPCONFIGPATH=/tmp/hyperledger/peer/msp
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=gcbc_grainchainnet
+      - FABRIC_LOGGING_SPEC=info
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/tmp/hyperledger/peer/tls-msp/signcerts/cert.pem 
+      - CORE_PEER_TLS_KEY_FILE=/tmp/hyperledger/peer/tls-msp/keystore/key.pem
+      - CORE_PEER_TLS_ROOTCERT_FILE=/tmp/hyperledger/peer/tls-msp/tlscacerts/tls-0-0-0-0-7052.pem
+      - CORE_PEER_GOSSIP_USELEADERELECTION=true
+      - CORE_PEER_GOSSIP_ORGLEADER=false
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer1-commodity.grainchain.io:7051 
+      - CORE_PEER_GOSSIP_SKIPHANDSHAKE=true
+    working_dir: /opt/gopath/src/github.com/hyperledger
+    volumes:
+      - /vagrant/peer/peer1-commodity.grainchain.io/config/:/tmp/hyperledger/config
+      - /var/run:/host/var/run
+      - /vagrant/ca/client/peerOrganizations/commodity/peers/peer1-commodity.grainchain.io:/tmp/hyperledger/peer 
+      - /vagrant/tmp/hyperledger/fabric-samples/chaincode/abac/go:/opt/gopath/src/github.com/hyperledger/fabric-samples/chaincode/abac/go
+    networks:
+      - grainchainnet
+    ports:
+      - 9051:7051
+
+  peer2-commodity.grainchain.io:
+    container_name: peer2-commodity.grainchain.io 
+    image: hyperledger/fabric-peer 
+    environment:
+      - FABRIC_CFG_PATH=/tmp/hyperledger/config
+      - COMPOSE_PROJECT_NAME=gcbc
+      - CORE_PEER_ID=peer2-commodity.grainchain.io
+      - CORE_PEER_ADDRESS=peer2-commodity.grainchain.io:7051
+      - CORE_PEER_LOCALMSPID=commodityMSP
+      - CORE_PEER_MSPCONFIGPATH=/tmp/hyperledger/peer/msp
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock
+      - CORE_VM_DOCKER_HOSTCONFIG_NETWORKMODE=gcbc_grainchainnet
+      - FABRIC_LOGGING_SPEC=info
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_CERT_FILE=/tmp/hyperledger/peer/tls-msp/signcerts/cert.pem 
+      - CORE_PEER_TLS_KEY_FILE=/tmp/hyperledger/peer/tls-msp/keystore/key.pem
+      - CORE_PEER_TLS_ROOTCERT_FILE=/tmp/hyperledger/peer/tls-msp/tlscacerts/tls-0-0-0-0-7052.pem
+      - CORE_PEER_GOSSIP_USELEADERELECTION=true
+      - CORE_PEER_GOSSIP_ORGLEADER=false
+      - CORE_PEER_GOSSIP_EXTERNALENDPOINT=peer2-commodity.grainchain.io:7051 
+      - CORE_PEER_GOSSIP_SKIPHANDSHAKE=true
+      - CORE_PEER_GOSSIP_BOOTSTRAP=peer1-commodity.grainchain.io:7051
+    working_dir: /opt/gopath/src/github.com/hyperledger
+    volumes:
+      - /vagrant/peer/peer2-commodity.grainchain.io/config/:/tmp/hyperledger/config
+      - /var/run:/host/var/run
+      - /vagrant/ca/client/peerOrganizations/commodity/peers/peer2-commodity.grainchain.io:/tmp/hyperledger/peer 
+      - /vagrant/tmp/hyperledger/fabric-samples/chaincode/abac/go:/opt/gopath/src/github.com/hyperledger/fabric-samples/chaincode/abac/go
+    networks:
+      - grainchainnet
+    ports:
+      - 10051:7051

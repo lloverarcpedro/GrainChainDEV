@@ -1,8 +1,8 @@
 #INSTALL CHAINCODE
 #ORG1 PEER 1
-docker exec -it cli-org2 sh
-export CORE_PEER_ADDRESS=peer1-org1:7051
-export CORE_PEER_MSPCONFIGPATH=/tmp/hyperledger/org1/admin/msp
+docker exec -it cli-org1 sh
+export CORE_PEER_ADDRESS=peer2-org2:7051
+export CORE_PEER_MSPCONFIGPATH=/tmp/hyperledger/org2/admin/msp
 
 
 export CC2_PACKAGE_FOLDER="$PWD/packages"
@@ -27,13 +27,13 @@ peer lifecycle chaincode install  $CC2_PACKAGE_FOLDER/$PACKAGE_NAME
 
 peer lifecycle chaincode queryinstalled
 
-export CORE_PEER_MSPCONFIGPATH=/tmp/hyperledger/org1/admin/msp
-export CORE_PEER_ADDRESS=peer1-org1:7051
+export CORE_PEER_MSPCONFIGPATH=/tmp/hyperledger/org2/admin/msp
+export CORE_PEER_ADDRESS=peer1-org2:7051
 export CC_CHANNEL_ID="mychannel"
 export PACKAGE_ID="gcnodecc.1.0-2.0:c5b63cdd59151b4b81d524713eab902156d3502c1175566e1ed510a6de9466de"
 export CC2_SEQUENCE=1
 export CC2_INIT_REQUIRED="--init-required"
-export ORDERER_ADDRESS=orderer1-org0:7050
+export ORDERER_ADDRESS=orderer3-org0:7050
 export TLS_PARAMETERS="--tls"
 export TLS_CA_CERT="/tmp/hyperledger/org2/peer1/assets/tls-ca/tls-ca-cert.pem" 
 export CORE_PEER_TLS_ENABLED=true

@@ -31,6 +31,10 @@ Vagrant.configure("2") do |config|
     # Ports foward
     # For Orderer Container
     config.vm.network "forwarded_port", guest: 7050, host: 7050
+    config.vm.network "forwarded_port", guest: 8050, host: 8050
+    config.vm.network "forwarded_port", guest: 9050, host: 9050
+    config.vm.network "forwarded_port", guest: 10050, host: 10050
+    config.vm.network "forwarded_port", guest: 11050, host: 11050
 
     #Explorer
     config.vm.network "forwarded_port", guest: 8080, host: 8080
@@ -39,6 +43,10 @@ Vagrant.configure("2") do |config|
 
     #PostgresDB
     config.vm.network "forwarded_port", guest: 5432, host: 5432
+    config.vm.network "forwarded_port", guest: 5442, host: 5442
+    config.vm.network "forwarded_port", guest: 5452, host: 5452
+    config.vm.network "forwarded_port", guest: 5462, host: 5462
+
     #MySQL DB
     config.vm.network "forwarded_port", guest: 3306, host:3306
 

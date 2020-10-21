@@ -1,6 +1,3 @@
-# 2.x
-# Docker Configtx
-# Sets up the 3 orgs in the network
 
 #   CAPABILITIES
 Capabilities:
@@ -11,87 +8,109 @@ Capabilities:
   Channel: &ChannelCapabilities
     V2_0: true
 
-# ORGANIZATIONS
+################################################################################
+#
+#   Section: Organizations
+#
+#   - This section defines the different organizational identities which will
+#   be referenced later in the configuration.
+#
+################################################################################
 Organizations:
-  - &Orderer
-    Name: Orderer
-    ID: OrdererMSP
-    MSPDir: vagrant/config/crypto-config/ordererOrganizations/grainchain.com/msp
-    # Policies are mandatory starting 2.x
-    Policies: &OrdererPolicies
+- &orderers
+   Name: orderers
+   # ID to load the MSP definition as
+   ID: orderersMSP
+   # MSPDir is the filesystem path which contains the MSP configuration
+   MSPDir: /vagrant/ca/client/ordererOrganizations/orderers/msp
+   Policies: &orderersPolicies
       Readers:
           Type: Signature
-          Rule: "OR('OrdererMSP.member')"
+          Rule: "OR('orderersMSP.member')"
       Writers:
           Type: Signature
-          Rule: "OR('OrdererMSP.member')"
+          Rule: "OR('orderersMSP.member')"
       Admins:
           Type: Signature
           # ONLY Admin Role can carry out administration activities
-          Rule: "OR('OrdererMSP.admin')"
+          Rule: "OR('orderersMSP.admin')"
       Endorsement:
           Type: Signature
-          Rule: "OR('OrdererMSP.member')"
+          Rule: "OR('orderersMSP.member')"
 
-  - &Grainchain
-    Name: Grainchain
-    ID: GrainchainMSP
-    MSPDir: vagrant/config/crypto-config/peerOrganizations/grainchain.com/msp
-    Policies: &GrainchainPolicies
+- &harvx
+   Name: harvx
+   # ID to load the MSP definition as
+   ID: harvxMSP
+   # MSPDir is the filesystem path which contains the MSP configuration
+   MSPDir: /vagrant/ca/client/peerOrganizations/harvx/msp
+   Policies: &harvxPolicies
       Readers:
           Type: Signature
           # Any member can READ e.g., query
-          Rule: "OR('GrainchainMSP.member')"
+          Rule: "OR('harvxMSP.member')"
       Writers:
           Type: Signature
           # Any member can WRITE e.g., submit transaction
-          Rule: "OR('GrainchainMSP.member')"
+          Rule: "OR('harvxMSP.member')"
       Admins:
           Type: Signature
           # Either Grainchain admin OR Orderer Admin can carry out admin activities
-          Rule: "OR('GrainchainMSP.admin')"
+          Rule: "OR('harvxMSP.member')"
       Endorsement:
           Type: Signature
           # Any member can act as an endorser
-          Rule: "OR('GrainchainMSP.member')"
-    AnchorPeers:
-      - Host: peer1.grainchain.com
+          Rule: "OR('harvxMSP.member')"
+   AnchorPeers:
+      # AnchorPeers defines the location of peers which can be used
+      # for cross org gossip communication.  Note, this value is only
+      # encoded in the genesis block in the Application section context
+      - Host: peer1-harvx.grainchain.io
         Port: 7051
 
-  # - &Budget
-  #   Name: Budget
-  #   ID: BudgetMSP
-  #   MSPDir: ./crypto-config/peerOrganizations/budget.com/msp
-  #   Policies: &BudgetPolicies
-  #     Readers:
-  #         Type: Signature
-  #         # Any member
-  #         Rule: "OR('BudgetMSP.member')"
-  #     Writers:
-  #         Type: Signature
-  #         # Any member
-  #         Rule: "OR('BudgetMSP.member')"
-  #     Admins:
-  #         Type: Signature
-  #         # BOTH Budget Admin AND Orderer Admin needed for admin activities
-  #         Rule: "OR('BudgetMSP.member')"
-  #     Endorsement:
-  #         Type: Signature
-  #         Rule: "OR('BudgetMSP.member')"
-  #   AnchorPeers:
-  #     - Host: peer1.budget.com
-  #       Port: 7051
+- &commodity
+   Name: commodity
+   # ID to load the MSP definition as
+   ID: commodityMSP
+   # MSPDir is the filesystem path which contains the MSP configuration
+   MSPDir: /vagrant/ca/client/peerOrganizations/commodity/msp
+   Policies: &commodityPolicies
+      Readers:
+          Type: Signature
+          # Any member can READ e.g., query
+          Rule: "OR('commodityMSP.member')"
+      Writers:
+          Type: Signature
+          # Any member can WRITE e.g., submit transaction
+          Rule: "OR('commodityMSP.member')"
+      Admins:
+          Type: Signature
+          # Either Grainchain admin OR Orderer Admin can carry out admin activities
+          Rule: "OR('commodityMSP.member')"
+      Endorsement:
+          Type: Signature
+          # Any member can act as an endorser
+          Rule: "OR('commodityMSP.member')"
+   AnchorPeers:
+      # AnchorPeers defines the location of peers which can be used
+      # for cross org gossip communication.  Note, this value is only
+      # encoded in the genesis block in the Application section context
+      - Host: peer1-commodity.grainchain.io
+        Port: 7051
 
-  
 
-#   ORDERER
 Orderer: &OrdererDefaults
 
-  OrdererType: solo
-
+  OrdererType: etcdraft
+  #OrdererType: solo
+  
   Addresses:
     # UPDATE THE IP ADDRESS
-    - orderer.grainchain.com:7050
+    - orderer1.grainchain.io:7050
+    - orderer2.grainchain.io:7050
+    - orderer3.grainchain.io:7050
+    - orderer4.grainchain.io:7050
+    - orderer5.grainchain.io:7050
   # Policies for Orderer
   Policies:
     Readers:
@@ -112,7 +131,66 @@ Orderer: &OrdererDefaults
     BlockValidation:
         Type: ImplicitMeta
         Rule: "ANY Writers"
+  # EtcdRaft defines configuration which must be set when the "etcdraft"
+  # orderertype is chosen.
+  EtcdRaft:
+      # The set of Raft replicas for this network. For the etcd/raft-based
+      # implementation, we expect every replica to also be an OSN. Therefore,
+      # a subset of the host:port items enumerated in this list should be
+      # replicated under the Orderer.Addresses key above.
+      Consenters:
+          - Host: orderer1.grainchain.io
+            Port: 7050
+            # Same cert is being used for client and server - for higher level of security you may use different certs
+            ClientTLSCert: /vagrant/ca/client/ordererOrganizations/orderers/orderers/orderer1.grainchain.io/tls-msp/signcerts/cert.pem
+            ServerTLSCert: /vagrant/ca/client/ordererOrganizations/orderers/orderers/orderer1.grainchain.io/tls-msp/signcerts/cert.pem
 
+          - Host: orderer2.grainchain.io
+            Port: 7050
+            ClientTLSCert: /vagrant/ca/client/ordererOrganizations/orderers/orderers/orderer2.grainchain.io/tls-msp/signcerts/cert.pem
+            ServerTLSCert: /vagrant/ca/client/ordererOrganizations/orderers/orderers/orderer2.grainchain.io/tls-msp/signcerts/cert.pem
+
+          - Host: orderer3.grainchain.io
+            Port: 7050
+            ClientTLSCert: /vagrant/ca/client/ordererOrganizations/orderers/orderers/orderer3.grainchain.io/tls-msp/signcerts/cert.pem
+            ServerTLSCert: /vagrant/ca/client/ordererOrganizations/orderers/orderers/orderer3.grainchain.io/tls-msp/signcerts/cert.pem
+
+          # Additional Orderers go here
+          - Host: orderer4.grainchain.io
+            Port: 7050
+            ClientTLSCert: /vagrant/ca/client/ordererOrganizations/orderers/orderers/orderer4.grainchain.io/tls-msp/signcerts/cert.pem
+            ServerTLSCert: /vagrant/ca/client/ordererOrganizations/orderers/orderers/orderer4.grainchain.io/tls-msp/signcerts/cert.pem
+            
+          - Host: orderer5.grainchain.io
+            Port: 7050
+            ClientTLSCert: /vagrant/ca/client/ordererOrganizations/orderers/orderers/orderer5.grainchain.io/tls-msp/signcerts/cert.pem
+            ServerTLSCert: /vagrant/ca/client/ordererOrganizations/orderers/orderers/orderer5.grainchain.io/tls-msp/signcerts/cert.pem
+      # Options to be specified for all the etcd/raft nodes. The values here
+      # are the defaults for all new channels and can be modified on a
+      # per-channel basis via configuration updates.
+      Options:
+          # TickInterval is the time interval between two Node.Tick invocations.
+          TickInterval: 500ms
+
+          # ElectionTick is the number of Node.Tick invocations that must pass
+          # between elections. That is, if a follower does not receive any
+          # message from the leader of current term before ElectionTick has
+          # elapsed, it will become candidate and start an election.
+          # ElectionTick must be greater than HeartbeatTick.
+          ElectionTick: 10
+
+          # HeartbeatTick is the number of Node.Tick invocations that must
+          # pass between heartbeats. That is, a leader sends heartbeat
+          # messages to maintain its leadership every HeartbeatTick ticks.
+          HeartbeatTick: 1
+
+          # MaxInflightBlocks limits the max number of in-flight append messages
+          # during optimistic replication phase.
+          MaxInflightBlocks: 5
+
+          # SnapshotIntervalSize defines number of bytes per which a snapshot is taken
+          SnapshotIntervalSize: 20 MB
+  
   # Batch Timeout: The amount of time to wait before creating a batch
   BatchTimeout: 2s
 
@@ -125,8 +203,15 @@ Orderer: &OrdererDefaults
   Capabilities:
     <<: *OrdererCapabilities
 
+################################################################################
+#
+#   SECTION: Application
+#
+#   This section defines the values to encode into a config transaction or
+#   genesis block for application related parameters
+#
+################################################################################
 Application: &ApplicationDefaults
-
   ACLs: &ACLsDefault
     
     # ACL policy for lscc's "getid" function
@@ -196,9 +281,7 @@ Application: &ApplicationDefaults
 
     # ACL policy for _lifecycle's "QueryChaincodeDefinition" function
     _lifecycle/QueryChaincodeDefinition: /Channel/Application/Readers
-    
-
-
+   
   # Default policies
   Policies: &ApplicationDefaultPolicies
 
@@ -222,13 +305,13 @@ Application: &ApplicationDefaults
         Rule: "ANY Endorsement"
 
 
+   # Organizations is the list of orgs which are defined as participants on
+   # the application side of the network
   Organizations:
-
   Capabilities:
     <<: *ApplicationCapabilities
- 
-
-#   CHANNEL
+  
+#  CHANNEL
 Channel: &ChannelDefaults
   Policies:
     Readers:
@@ -245,39 +328,43 @@ Channel: &ChannelDefaults
     <<: *ChannelCapabilities
 
   
-#   PROFILES
+
+################################################################################
+#
+#   Profile
+#
+#   - Different configuration profiles may be encoded here to be specified
+#   as parameters to the configtxgen tool
+#
+################################################################################
 Profiles:
 
-  GrainchainOrdererGenesis:
-      <<: *ChannelDefaults
-      Orderer:
-          <<: *OrdererDefaults
-          Organizations:
-              - <<: *Orderer
-      Consortiums:
-        GrainchainConsortium:
-            Organizations:
-                  - <<: *Grainchain
+  OrgsOrdererGenesis:
+    <<: *ChannelDefaults
+    Orderer:
+        <<: *OrdererDefaults
+        Organizations:
+          - <<: *orderers
 
-      Application:
+    Consortiums:
+        SampleConsortium:
+          Organizations:
+            - <<: *harvx
+            - <<: *commodity
+            
+    Application:
             <<: *ApplicationDefaults
 
             Organizations:
-                - <<: *Grainchain
+                - <<: *harvx
+                - <<: *commodity
 
-                                    
-                  
-  GrainchainChannel:
+
+  OrgsChannel:
     <<: *ChannelDefaults
-    Consortium: GrainchainConsortium
-        
+    Consortium: SampleConsortium
     Application:
         <<: *ApplicationDefaults
-        
         Organizations:
-            - <<: *Grainchain
-
-        
-
-
-  
+          - <<: *harvx
+          - <<: *commodity

@@ -101,11 +101,16 @@ Organizations:
 
 Orderer: &OrdererDefaults
 
-  OrdererType: solo
-
+  OrdererType: etcdraft
+  #OrdererType: solo
+  
   Addresses:
     # UPDATE THE IP ADDRESS
     - orderer1-org0:7050
+    - orderer2-org0:7050
+    - orderer3-org0:7050
+    - orderer4-org0:7050
+    - orderer5-org0:7050
   # Policies for Orderer
   Policies:
     Readers:
@@ -126,6 +131,65 @@ Orderer: &OrdererDefaults
     BlockValidation:
         Type: ImplicitMeta
         Rule: "ANY Writers"
+  # EtcdRaft defines configuration which must be set when the "etcdraft"
+  # orderertype is chosen.
+  EtcdRaft:
+      # The set of Raft replicas for this network. For the etcd/raft-based
+      # implementation, we expect every replica to also be an OSN. Therefore,
+      # a subset of the host:port items enumerated in this list should be
+      # replicated under the Orderer.Addresses key above.
+      Consenters:
+          - Host: orderer1-org0
+            Port: 7050
+            # Same cert is being used for client and server - for higher level of security you may use different certs
+            ClientTLSCert: /vagrant/tmp/hyperledger/org0/orderer1/tls-msp/signcerts/cert.pem
+            ServerTLSCert: /vagrant/tmp/hyperledger/org0/orderer1/tls-msp/signcerts/cert.pem
+
+          - Host: orderer2-org0
+            Port: 7050
+            ClientTLSCert: /vagrant/tmp/hyperledger/org0/orderer2/tls-msp/signcerts/cert.pem
+            ServerTLSCert: /vagrant/tmp/hyperledger/org0/orderer2/tls-msp/signcerts/cert.pem
+
+          - Host: orderer3-org0
+            Port: 7050
+            ClientTLSCert: /vagrant/tmp/hyperledger/org0/orderer3/tls-msp/signcerts/cert.pem
+            ServerTLSCert: /vagrant/tmp/hyperledger/org0/orderer3/tls-msp/signcerts/cert.pem
+
+          # Additional Orderers go here
+          - Host: orderer4-org0
+            Port: 7050
+            ClientTLSCert: /vagrant/tmp/hyperledger/org0/orderer4/tls-msp/signcerts/cert.pem
+            ServerTLSCert: /vagrant/tmp/hyperledger/org0/orderer4/tls-msp/signcerts/cert.pem
+            
+          - Host: orderer5-org0
+            Port: 7050
+            ClientTLSCert: /vagrant/tmp/hyperledger/org0/orderer5/tls-msp/signcerts/cert.pem
+            ServerTLSCert: /vagrant/tmp/hyperledger/org0/orderer5/tls-msp/signcerts/cert.pem
+      # Options to be specified for all the etcd/raft nodes. The values here
+      # are the defaults for all new channels and can be modified on a
+      # per-channel basis via configuration updates.
+      Options:
+          # TickInterval is the time interval between two Node.Tick invocations.
+          TickInterval: 500ms
+
+          # ElectionTick is the number of Node.Tick invocations that must pass
+          # between elections. That is, if a follower does not receive any
+          # message from the leader of current term before ElectionTick has
+          # elapsed, it will become candidate and start an election.
+          # ElectionTick must be greater than HeartbeatTick.
+          ElectionTick: 10
+
+          # HeartbeatTick is the number of Node.Tick invocations that must
+          # pass between heartbeats. That is, a leader sends heartbeat
+          # messages to maintain its leadership every HeartbeatTick ticks.
+          HeartbeatTick: 1
+
+          # MaxInflightBlocks limits the max number of in-flight append messages
+          # during optimistic replication phase.
+          MaxInflightBlocks: 5
+
+          # SnapshotIntervalSize defines number of bytes per which a snapshot is taken
+          SnapshotIntervalSize: 20 MB
   
   # Batch Timeout: The amount of time to wait before creating a batch
   BatchTimeout: 2s
@@ -279,15 +343,22 @@ Profiles:
     <<: *ChannelDefaults
     Orderer:
         <<: *OrdererDefaults
-        
         Organizations:
-        - *org0
+          - <<: *org0
 
     Consortiums:
         SampleConsortium:
           Organizations:
-            - *org1
-            - *org2
+            - <<: *org1
+            - <<: *org2
+            
+    Application:
+            <<: *ApplicationDefaults
+
+            Organizations:
+                - <<: *org1
+                - <<: *org2
+
 
   OrgsChannel:
     <<: *ChannelDefaults
@@ -295,5 +366,5 @@ Profiles:
     Application:
         <<: *ApplicationDefaults
         Organizations:
-        - *org1
-        - *org2
+          - <<: *org1
+          - <<: *org2

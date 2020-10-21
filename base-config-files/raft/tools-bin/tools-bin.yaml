@@ -1,0 +1,59 @@
+version: '2.4'
+
+networks:
+  grainchainnet:
+   name: gcbc_grainchainnet
+   driver: bridge
+
+services:
+  cli-harvx.grainchain.io:
+    container_name: cli-harvx.grainchain.io
+    image: hyperledger/fabric-tools 
+    tty: true
+    stdin_open: true
+    environment:
+      - COMPOSE_PROJECT_NAME=gcbc
+      - GOPATH=/opt/gopath
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock 
+      - FABRIC_LOGGING_SPEC=DEBUG
+      - CORE_PEER_ID=cli-harvx.grainchain.io
+      - CORE_PEER_ADDRESS=peer1-harvx.io:7051
+      - CORE_PEER_LOCALMSPID=harvxMSP
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_ROOTCERT_FILE=/tmp/hyperledger/org/msp/tlscacerts/ca-cert.pem
+      - CORE_PEER_MSPCONFIGPATH=/tmp/hyperledger/org/users/admin/msp
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/org1 
+    command: sh
+    volumes:
+      - /vagrant/config:/tmp/hyperledger/txconfig
+      - /vagrant/base-config-files/raft/scripts:/tmp/hyperledger/scripts
+      - /vagrant/ca/client/peerOrganizations/harvx:/tmp/hyperledger/org
+      - /vagrant/gopath/src:/opt/gopath/src/github.com/hyperledger/fabric-samples/chaincode
+    networks:
+      - grainchainnet
+
+  cli-commodity.grainchain.io:
+    container_name: cli-commodity.grainchain.io
+    image: hyperledger/fabric-tools 
+    tty: true
+    stdin_open: true
+    environment:
+      - COMPOSE_PROJECT_NAME=gcbc
+      - GOPATH=/opt/gopath
+      - CORE_VM_ENDPOINT=unix:///host/var/run/docker.sock 
+      - FABRIC_LOGGING_SPEC=DEBUG
+      - CORE_PEER_ID=cli-commodity.grainchain.io
+      - CORE_PEER_ADDRESS=peer1-commodity.io:7051
+      - CORE_PEER_LOCALMSPID=commodityMSP
+      - CORE_PEER_TLS_ENABLED=true
+      - CORE_PEER_TLS_ROOTCERT_FILE=/tmp/hyperledger/org/msp/tlscacerts/ca-cert.pem
+      - CORE_PEER_MSPCONFIGPATH=/tmp/hyperledger/org/users/admin/msp
+    working_dir: /opt/gopath/src/github.com/hyperledger/fabric/org1 
+    command: sh
+    volumes:
+      - /vagrant/config:/tmp/hyperledger/txconfig
+      - /vagrant/base-config-files/raft/scripts:/tmp/hyperledger/scripts
+      - /vagrant/ca/client/peerOrganizations/commodity:/tmp/hyperledger/org
+      - /vagrant/gopath/src:/opt/gopath/src/github.com/hyperledger/fabric-samples/chaincode
+    networks:
+      - grainchainnet
